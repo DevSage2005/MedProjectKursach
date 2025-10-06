@@ -1,20 +1,14 @@
 package ru.kursach.MedProject.models;
-
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
 import java.util.Collection;
 import java.util.List;
 
-@Component
 public class PesonDetails implements UserDetails {
 
     private final User user;
 
-    @Autowired
     public PesonDetails(User user) {
         this.user = user;
     }

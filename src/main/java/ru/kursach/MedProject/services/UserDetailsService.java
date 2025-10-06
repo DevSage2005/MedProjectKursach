@@ -3,7 +3,6 @@ package ru.kursach.MedProject.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.kursach.MedProject.models.PesonDetails;
@@ -13,11 +12,11 @@ import ru.kursach.MedProject.repositories.UserRepository;
 import java.util.Optional;
 
 @Service
-public class PersonService implements UserDetailsService {
+public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
     private final UserRepository userRepository;
 
     @Autowired
-    public PersonService(UserRepository userRepository){
+    public UserDetailsService(UserRepository userRepository){
         this.userRepository=userRepository;
     }
 
@@ -31,4 +30,5 @@ public class PersonService implements UserDetailsService {
         }
         return new PesonDetails(user.get());
     }
+
 }

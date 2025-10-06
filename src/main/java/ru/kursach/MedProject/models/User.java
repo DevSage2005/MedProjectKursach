@@ -21,7 +21,7 @@ public class User {
     @Column(name="password")
     private String password;
     @Column(name="date_of_birth")
-    @DateTimeFormat(pattern = "dd/MM/YYYY")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
 

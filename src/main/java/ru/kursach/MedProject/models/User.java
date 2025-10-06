@@ -3,11 +3,13 @@ package ru.kursach.MedProject.models;
 import jakarta.persistence.*;
 import jdk.jfr.Enabled;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Entity
 @Table(name="user")
+@Component
 public class User {
 
     @Id

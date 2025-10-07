@@ -12,4 +12,9 @@ public class MainController {
     public String index(){
         return "main/index";
     }
+
+    @GetMapping("/about")
+    public String about(){
+        return "main/about";
+    }
 }

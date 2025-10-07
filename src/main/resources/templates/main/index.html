@@ -28,7 +28,9 @@
                                                                                        placeholder="Search..."
                                                                                        aria-label="Search"></form>
             <div class="text-end">
-                <a class="btn btn-outline-light me-2" href="/logout">Logout</a>
+                <form th:method="POST" th:action="@{/logout}">
+                <input type="submit" value="Logout">
+                </form>
                 <button type="button" class="btn btn-warning">Sign-up</button>
             </div>
         </div>

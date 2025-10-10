@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>О проекте</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-body-tertiary">
+<header class="p-3 text-bg-dark" style="display: flex; justify-content: flex-end">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"><a href="/"
+                                                                                                            class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                <use xlink:href="#bootstrap"></use>
+            </svg>
+        </a>
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
+                <li><a th:href="@{/main/about}" class="nav-link px-2 text-white">About</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
+            </ul>
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search"><input type="search"
+                                                                                       class="form-control form-control-dark text-bg-dark"
+                                                                                       placeholder="Search..."
+                                                                                       aria-label="Search"></form>
+            <div >
+                <form th:method="POST" th:action="@{/logout}">
+                    <input type="submit" value="Logout" class="btn btn-warning">
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container">
+    <div class="my-3 p-3 bg-body rounded shadow-sm">
+        <h6 class="border-bottom pb-2 mb-0">Администраторы</h6>
+
+        <div class="d-flex text-body-secondary pt-3"
+             th:each="user : ${users}"
+             th:if="${user.isAdmin()}">
+
+            <div class="flex-shrink-0 me-3">
+                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white"
+                     style="width: 48px; height: 48px;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex-grow-1 border-bottom pb-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <strong class="d-block text-gray-dark fs-6" th:text="${user.getName()}">@username</strong>
+                        <div class="text-muted small mt-1">
+                            Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
+                        </div>
+                        <div class="text-muted small">
+                            Права: <span class="badge bg-light text-dark border" th:text="${user.getAllRoles()}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/adminPage/setRole/{id}(id=${user.getId()})}" method="POST" class="mt-2">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label for="roleAd" class="form-label small mb-0">Назначить роль:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select id="roleAd" name="newRole" class="form-select form-select-sm" style="width: 160px;">
+                                <option th:each="role : ${userRoles}"
+                                        th:value="${role.name()}"
+                                        th:text="${role.getTranslation()}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary btn-sm px-3">
+                                Назначить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <form th:action="@{/adminPage/deleteRole/{id}(id = ${user.getId()})}" method="POST" class="mt-2">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label for="removeRoleAdmin" class="form-label small mb-0">Удалить роль:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select id="removeRoleAdmin" name="deleteRole" class="form-select form-select-sm" style="width: 160px;">
+                                <option th:each="role : ${userRoles}"
+                                        th:value="${role.name()}"
+                                        th:text="${role.getTranslation()}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-danger btn-sm px-3">
+                                Удалить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+
+            </div>
+        </div>
+    </div>
+
+
+        <div class="my-3 p-3 bg-body rounded shadow-sm">
+            <h6 class="border-bottom pb-2 mb-0">Пользователи</h6>
+
+            <div class="d-flex text-body-secondary pt-3"
+                 th:each="user : ${users}"
+                 th:if="${user.isSimpleUser()}">
+
+                <div class="flex-shrink-0 me-3">
+                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white"
+                         style="width: 48px; height: 48px;">
+                        <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="flex-grow-1 border-bottom pb-3">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <strong class="d-block text-gray-dark fs-6" th:text="${user.getName()}">@username</strong>
+                            <div class="text-muted small mt-1">
+                                Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
+                            </div>
+                            <div class="text-muted small">
+                                Права: <span class="badge bg-light text-dark border" th:text="${user.getAllRoles()}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form th:action="@{/adminPage/setRole/{id}(id=${user.getId()})}" method="POST" class="mt-2">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <label for="role" class="form-label small mb-0">Назначить роль:</label>
+                            </div>
+                            <div class="col-auto">
+                                <select id="role" name="newRole" class="form-select form-select-sm" style="width: 160px;">
+                                    <option th:each="role : ${userRoles}"
+                                            th:value="${role.name()}"
+                                            th:text="${role.getTranslation()}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-primary btn-sm px-3">
+                                    Назначить
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                    <form th:action="@{/adminPage/deleteRole/{id}(id = ${user.getId()})}" method="POST" class="mt-2">
+                        <div class="row g-2 align-items-center">
+                            <div class="col-auto">
+                                <label for="removeRoleUser" class="form-label small mb-0">Удалить роль:</label>
+                            </div>
+                            <div class="col-auto">
+                                <select id="removeRoleUser" name="deleteRole" class="form-select form-select-sm" style="width: 160px;">
+                                    <option th:each="role : ${userRoles}"
+                                            th:value="${role.name()}"
+                                            th:text="${role.getTranslation()}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-auto">
+                                <button type="submit" class="btn btn-danger btn-sm px-3">
+                                    Удалить
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+
+    <div class="my-3 p-3 bg-body rounded shadow-sm">
+        <h6 class="border-bottom pb-2 mb-0">Доктора</h6>
+
+        <div class="d-flex text-body-secondary pt-3"
+             th:each="user : ${users}"
+             th:if="${user.isDoctor()}">
+
+            <div class="flex-shrink-0 me-3">
+                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white"
+                     style="width: 48px; height: 48px;">
+                    <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="flex-grow-1 border-bottom pb-3">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <strong class="d-block text-gray-dark fs-6" th:text="${user.getName()}">@username</strong>
+                        <div class="text-muted small mt-1">
+                            Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
+                        </div>
+                        <div class="text-muted small">
+                            Права: <span class="badge bg-light text-dark border" th:text="${user.getAllRoles()}"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <form th:action="@{/adminPage/setRole/{id}(id=${user.getId()})}" method="POST" class="mt-2">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label for="roleDoc" class="form-label small mb-0">Назначить роль:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select id="roleDoc" name="newRole" class="form-select form-select-sm" style="width: 160px;">
+                                <option th:each="role : ${userRoles}"
+                                        th:value="${role.name()}"
+                                        th:text="${role.getTranslation()}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary btn-sm px-3">
+                                Назначить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+
+                <form th:action="@{/adminPage/deleteRole/{id}(id = ${user.getId()})}" method="POST" class="mt-2">
+                    <div class="row g-2 align-items-center">
+                        <div class="col-auto">
+                            <label for="removeRoleDoctor" class="form-label small mb-0">Удалить роль:</label>
+                        </div>
+                        <div class="col-auto">
+                            <select id="removeRoleDoctor" name="deleteRole" class="form-select form-select-sm" style="width: 160px;">
+                                <option th:each="role : ${userRoles}"
+                                        th:value="${role.name()}"
+                                        th:text="${role.getTranslation()}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-danger btn-sm px-3">
+                                Удалить
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</main>
+<script src="/docs/5.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        class="astro-vvvwv3sm"></script>
+<script src="offcanvas-navbar.js" class="astro-vvvwv3sm"></script>
+</body>
+</html>

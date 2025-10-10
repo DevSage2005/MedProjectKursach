@@ -1,9 +1,11 @@
 package ru.kursach.MedProject.models;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PesonDetails implements UserDetails {
 
@@ -16,6 +18,12 @@ public class PesonDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
+
+        if (user.getRole() != null) {
+            return user.getRole().stream()
+                    .map(role -> new SimpleGrantedAuthority(role.name()))
+                    .collect(Collectors.toList());
+        }
         return List.of();
     }
 

@@ -5,13 +5,12 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import ru.kursach.MedProject.models.User;
 import ru.kursach.MedProject.services.UserService;
 import ru.kursach.MedProject.validators.UserValidator;
+
+import java.time.LocalDateTime;
 
 @Controller
 @RequestMapping("/auth")
@@ -37,12 +36,16 @@ public class AuthController {
     }
 
     @PostMapping("/registration")
-    public String registrationSubmit(@ModelAttribute("user") @Valid User user, BindingResult bindingResult){
+    public String registrationSubmit(@RequestParam("confirmPassword") String confirmPassword, @Valid @ModelAttribute("user") User user, BindingResult bindingResult){
 
+        userValidator.setConfirmPassword(confirmPassword);
         userValidator.validate(user, bindingResult);
+        userValidator.reset();
+
         if(bindingResult.hasErrors()){
             return "/auth/registration";
         }
+        user.setCreatedAt(LocalDateTime.now());
         userService.save(user);
         return "redirect:/auth/login";
     }

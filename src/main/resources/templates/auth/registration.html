@@ -7,47 +7,147 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="d-flex align-items-center py-4 bg-body-tertiary">
-<main class="form-signin w-100 m-auto" style="max-width: 330px;">
-    <form th:action="@{/auth/registration}" th:method="post" th:object="${user}" >
-        <div class="text-center mb-4">
-            <img class="mb-4" src="https://getbootstrap.com/docs/5.3/assets/brand/bootstrap-logo.svg"
-                 alt="" width="72" height="57">
-            <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+
+
+<main class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Регистрация пользователя</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/auth/registration}" th:method="post" th:object="${user}" class="needs-validation" novalidate>
+
+                        <div class="row g-3">
+
+                            <!-- Имя -->
+                            <div class="col-sm-6">
+                                <label for="firstName" class="form-label">Имя *</label>
+                                <input type="text" class="form-control" id="firstName"
+                                       th:field="*{firstName}" placeholder="Иван" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">
+                                    Valid first name is required.
+                                </div>
+                            </div>
+
+                            <!-- Фамилия -->
+                            <div class="col-sm-6">
+                                <label for="lastName" class="form-label">Фамилия *</label>
+                                <input type="text" class="form-control" id="lastName"
+                                       th:field="*{lastName}" placeholder="Петров" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">
+                                    Valid last name is required.
+                                </div>
+                            </div>
+
+                            <!-- Отчество -->
+                            <div class="col-12">
+                                <label for="middleName" class="form-label">Отчество</label>
+                                <input type="text" class="form-control" id="middleName"
+                                       th:field="*{middleName}" placeholder="Сергеевич">
+                                <div style="color: darkred" th:if="${#fields.hasErrors('middleName')}" th:errors="*{middleName}">
+                                    Please enter a valid middle name.
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email"
+                                       th:field="*{email}" placeholder="you@example.com" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+
+                            <!-- Телефон -->
+                            <div class="col-12">
+                                <label for="phone" class="form-label">Телефон *</label>
+                                <input type="tel" class="form-control" id="phone"
+                                       th:field="*{phone}" placeholder="+375 (29) 123-45-67" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
+                                    Please enter a valid phone number.
+                                </div>
+                            </div>
+
+                            <!-- Дата рождения -->
+                            <div class="col-md-6">
+                                <label for="dateOfBirth" class="form-label">Дата рождения *</label>
+                                <input type="date" class="form-control" id="dateOfBirth"
+                                       th:field="*{dateOfBirth}" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}">
+                                    Please enter your date of birth.
+                                </div>
+                            </div>
+
+                            <!-- Пол -->
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Пол *</label>
+                                <select class="form-select" id="gender" th:field="*{gender}" required>
+                                    <option value="">Выберите...</option>
+                                    <option th:each="gender : ${T(ru.kursach.MedProject.enums.Gender).values()}"
+                                            th:value="${gender}"
+                                            th:text="${gender.getTranslation()}"></option>
+                                </select>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}">
+                                    Please select a valid gender.
+                                </div>
+                            </div>
+
+                            <!-- Адрес -->
+                            <div class="col-12">
+                                <label for="address" class="form-label">Адрес</label>
+                                <input type="text" class="form-control" id="address"
+                                       th:field="*{address}" placeholder="г. Минск, ул. Примерная, 123">
+                                <div style="color: darkred" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">
+                                    Please enter a valid address.
+                                </div>
+                            </div>
+
+                            <!-- Пароль -->
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">Пароль *</label>
+                                <input type="password" class="form-control" id="password"
+                                       th:field="*{password}" placeholder="" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                                    Please enter a valid password.
+                                </div>
+                            </div>
+
+                            <!-- Подтверждение пароля -->
+                            <div class="col-md-6">
+                                <label for="confirmPassword" class="form-label">Подтверждение пароля *</label>
+                                <input type="password" class="form-control" id="confirmPassword"
+                                       name="confirmPassword" placeholder="" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4">
+
+
+                        <!-- Кнопка отправки -->
+                        <button class="btn btn-primary btn-lg w-100 mt-4" type="submit">Зарегистрироваться</button>
+
+                        <!-- Ссылка на вход -->
+                        <div class="text-center mt-3">
+                            <p class="text-muted">Уже есть аккаунт? <a th:href="@{/auth/login}">Войти</a></p>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
         </div>
-
-
-
-        <div class="form-floating mb-3">
-            <input type="text" class="form-control" id="username"
-                   placeholder="Username" th:field="*{name}" required>
-            <label for="username">Enter a login</label>
-            <div style="color: darkred" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">username error</div>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input type="password" class="form-control" id="password"
-                   placeholder="Password" th:field="*{password}" required>
-            <label for="password">Password</label>
-            <div style="color: darkred" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">password error</div>
-        </div>
-
-        <div class="form-floating mb-3">
-            <input type="date" class="form-control" id="date"
-                   placeholder="Date" th:field="*{dateOfBirth}" required>
-            <label for="date">Enter date of birth</label>
-            <div style="color: darkred" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}">dateOfBirth error</div>
-        </div>
-
-        <div class="form-check text-start mb-3">
-            <input class="form-check-input" type="checkbox" name="remember-me" id="rememberMe">
-            <label class="form-check-label" for="rememberMe">Remember me</label>
-        </div>
-
-        <button class="btn btn-primary w-100 py-2" type="submit">Sign in</button>
-
-        <p class="mt-5 mb-3 text-body-secondary text-center">© 2024</p>
-    </form>
+    </div>
 </main>
+
+
+
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>

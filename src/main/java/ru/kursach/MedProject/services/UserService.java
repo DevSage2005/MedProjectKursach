@@ -33,7 +33,11 @@ public class UserService {
 
     @Transactional
     public Optional<User> getUserByName(String name){
-        return userRepository.findByName(name);
+        return userRepository.findByEmail(name);
+    }
+
+    public boolean confirmPassword(User user,String confirm){
+        return confirm == user.getPassword();
     }
 
 

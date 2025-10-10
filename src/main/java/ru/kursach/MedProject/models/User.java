@@ -1,10 +1,14 @@
 package ru.kursach.MedProject.models;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
+import ru.kursach.MedProject.enums.Gender;
 import ru.kursach.MedProject.enums.Roles;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -16,14 +20,49 @@ public class User {
     @Column(name="id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    @Column(name="name")
-    private String name;
-    @Column(name="password")
-    private String password;
+    @Pattern(regexp = "^[A-Za-zА-Яа-яЁё\\-\\s']{2,50}$", message = "ФИО должно содержать только буквы, дефисы и пробелы (2-50 символов)")
+    @Column(name="first_name")
+    private String firstName; //Имя
+    @Pattern(regexp = "^[A-Za-zА-Яа-яЁё\\-\\s']{2,50}$", message = "ФИО должно содержать только буквы, дефисы и пробелы (2-50 символов)")
+    @Column(name="last_name")
+    private String lastName; //Фамилия
+    @Pattern(regexp = "^[A-Za-zА-Яа-яЁё\\-\\s']{2,50}$", message = "ФИО должно содержать только буквы, дефисы и пробелы (2-50 символов)")
+    @Column(name="middle_name")
+    private String middleName; //Отчество
     @Column(name="date_of_birth")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
+    @Pattern(regexp = "^\\+375 \\((17|25|29|33|44)\\) [0-9]{3}-[0-9]{2}-[0-9]{2}$", message = "Номер телефона должен быть в формате: +375 (33) 650-96-05")
+    @Column(name="phone")
+    private String phone;
+    @Email(message = "Некорректный формат email")
+    @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Email должен быть в формате example@domain.com")
+    @Column(name="email")
+    private String email;
+    @Pattern(regexp = "^[A-Za-zА-Яа-яЁё\\s\\-\\.,]{3,100}$", message = "Специализация должна содержать только буквы, пробелы, точки и дефисы (3-100 символов)")
+    @Column(name="specialization")
+    private String specialization;
+    @Pattern(regexp = "^[A-Za-zА-Яа-яЁё0-9\\s\\-\\.,/№]{5,200}$",message = "Адрес должен содержать буквы, цифры, пробелы и основные символы (5-200 символов)")
+    @Column(name="address")
+    private String address;
+    @Column(name="is_active")
+    private boolean isActive=true;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="creation_time")
+    private LocalDateTime createdAt;
+    @Pattern(regexp = "^[A-Za-z0-9\\-\\s]{5,20}$", message = "Номер лицензии должен содержать буквы, цифры и дефисы (5-20 символов)")
+    @Column(name="medical_license_number")
+    private String medicalLicenseNumber;
+    @Enumerated(EnumType.STRING)
+    @Column(name="gender")
+    private Gender gender;
+    @Column(name="last_login_at")
+    private LocalDateTime lastLoginAt;
+    @Pattern(regexp = "^.{6,}$",
+            message = "Пароль должен содержать минимум 6 символов")
+    @Column(name="password")
+    private String password;
 
     @ElementCollection(targetClass = Roles.class, fetch = FetchType.EAGER)
     @CollectionTable(
@@ -87,11 +126,7 @@ public class User {
         this.role = role;
     }
 
-    public User(String name, String password, Date dateOfBirth) {
-        this.name = name;
-        this.password = password;
-        this.dateOfBirth = dateOfBirth;
-    }
+
 
     public User() {
     }
@@ -104,12 +139,101 @@ public class User {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getMiddleName() {
+        return middleName;
+    }
+
+    public void setMiddleName(String middleName) {
+        this.middleName = middleName;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getMedicalLicenseNumber() {
+        return medicalLicenseNumber;
+    }
+
+    public void setMedicalLicenseNumber(String medicalLicenseNumber) {
+        this.medicalLicenseNumber = medicalLicenseNumber;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public LocalDateTime getLastLoginAt() {
+        return lastLoginAt;
+    }
+
+    public void setLastLoginAt(LocalDateTime lastLoginAt) {
+        this.lastLoginAt = lastLoginAt;
     }
 
     public String getPassword() {
@@ -133,11 +257,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && Objects.equals(name, user.name) && Objects.equals(password, user.password) && Objects.equals(dateOfBirth, user.dateOfBirth) && Objects.equals(role, user.role);
+        return id == user.id && isActive == user.isActive && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(middleName, user.middleName) && Objects.equals(dateOfBirth, user.dateOfBirth) && Objects.equals(phone, user.phone) && Objects.equals(email, user.email) && Objects.equals(specialization, user.specialization) && Objects.equals(address, user.address) && Objects.equals(createdAt, user.createdAt) && Objects.equals(medicalLicenseNumber, user.medicalLicenseNumber) && gender == user.gender && Objects.equals(lastLoginAt, user.lastLoginAt) && Objects.equals(password, user.password) && Objects.equals(role, user.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, password, dateOfBirth, role);
+        return Objects.hash(id, firstName, lastName, middleName, dateOfBirth, phone, email, specialization, address, isActive, createdAt, medicalLicenseNumber, gender, lastLoginAt, password, role);
     }
 }

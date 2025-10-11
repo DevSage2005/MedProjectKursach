@@ -3,10 +3,12 @@ package ru.kursach.MedProject.models;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
 import ru.kursach.MedProject.enums.Gender;
 import ru.kursach.MedProject.enums.Roles;
+import ru.kursach.MedProject.enums.Specialization;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -33,19 +35,27 @@ public class User {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @Temporal(TemporalType.DATE)
     private Date dateOfBirth;
-    @Pattern(regexp = "^\\+375 \\((17|25|29|33|44)\\) [0-9]{3}-[0-9]{2}-[0-9]{2}$", message = "Номер телефона должен быть в формате: +375 (33) 650-96-05")
+    @Pattern(regexp = "^\\+375 \\((17|25|29|33|44)\\) [0-9]{3}-[0-9]{2}-[0-9]{2}$",
+            message = "Номер телефона должен быть в формате: +375 (33) 650-96-05")
     @Column(name="phone")
     private String phone;
     @Email(message = "Некорректный формат email")
     @Pattern(regexp = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$", message = "Email должен быть в формате example@domain.com")
     @Column(name="email")
     private String email;
-    @Pattern(regexp = "^[A-Za-zА-Яа-яЁё\\s\\-\\.,]{3,100}$", message = "Специализация должна содержать только буквы, пробелы, точки и дефисы (3-100 символов)")
+    @Enumerated(EnumType.STRING)
     @Column(name="specialization")
-    private String specialization;
+    private Specialization specialization;
+    @Column(name="experience_years")
+    private Integer experienceYears;
+    @Size(max = 1000, message = "Превышено допутимое количество символов")
+    @Column(name="bio", length = 1000)
+    private String bio;
     @Pattern(regexp = "^[A-Za-zА-Яа-яЁё0-9\\s\\-\\.,/№]{5,200}$",message = "Адрес должен содержать буквы, цифры, пробелы и основные символы (5-200 символов)")
     @Column(name="address")
     private String address;
+    @Column(name="education")
+    private String education;
     @Column(name="is_active")
     private boolean isActive=true;
     @Temporal(TemporalType.TIMESTAMP)
@@ -179,13 +189,7 @@ public class User {
         this.email = email;
     }
 
-    public String getSpecialization() {
-        return specialization;
-    }
 
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
-    }
 
     public String getAddress() {
         return address;
@@ -193,6 +197,38 @@ public class User {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public Specialization getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(Specialization specialization) {
+        this.specialization = specialization;
+    }
+
+    public Integer getExperienceYears() {
+        return experienceYears;
+    }
+
+    public void setExperienceYears(Integer experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getEducation() {
+        return education;
+    }
+
+    public void setEducation(String education) {
+        this.education = education;
     }
 
     public boolean isActive() {
@@ -257,11 +293,11 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && isActive == user.isActive && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(middleName, user.middleName) && Objects.equals(dateOfBirth, user.dateOfBirth) && Objects.equals(phone, user.phone) && Objects.equals(email, user.email) && Objects.equals(specialization, user.specialization) && Objects.equals(address, user.address) && Objects.equals(createdAt, user.createdAt) && Objects.equals(medicalLicenseNumber, user.medicalLicenseNumber) && gender == user.gender && Objects.equals(lastLoginAt, user.lastLoginAt) && Objects.equals(password, user.password) && Objects.equals(role, user.role);
+        return id == user.id && isActive == user.isActive && Objects.equals(firstName, user.firstName) && Objects.equals(lastName, user.lastName) && Objects.equals(middleName, user.middleName) && Objects.equals(dateOfBirth, user.dateOfBirth) && Objects.equals(phone, user.phone) && Objects.equals(email, user.email) && specialization == user.specialization && Objects.equals(experienceYears, user.experienceYears) && Objects.equals(bio, user.bio) && Objects.equals(address, user.address) && Objects.equals(education, user.education) && Objects.equals(createdAt, user.createdAt) && Objects.equals(medicalLicenseNumber, user.medicalLicenseNumber) && gender == user.gender && Objects.equals(lastLoginAt, user.lastLoginAt) && Objects.equals(password, user.password) && Objects.equals(role, user.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, middleName, dateOfBirth, phone, email, specialization, address, isActive, createdAt, medicalLicenseNumber, gender, lastLoginAt, password, role);
+        return Objects.hash(id, firstName, lastName, middleName, dateOfBirth, phone, email, specialization, experienceYears, bio, address, education, isActive, createdAt, medicalLicenseNumber, gender, lastLoginAt, password, role);
     }
 }

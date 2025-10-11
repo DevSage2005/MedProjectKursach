@@ -1,10 +1,321 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Add new Doctor</title>
+    <title>Добавить нового доктора</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
+<body class="bg-body-tertiary">
+<!-- Header -->
+<header class="p-3 text-bg-dark" style="display: flex; justify-content: flex-end">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
+                    <use xlink:href="#bootstrap"></use>
+                </svg>
+            </a>
+            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Home</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
+                <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
+                <li><a th:href="@{/main/about}" class="nav-link px-2 text-white">About</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
+            </ul>
+            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+                <input type="search" class="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search">
+            </form>
+            <div>
+                <form th:method="POST" th:action="@{/logout}">
+                    <input type="submit" value="Logout" class="btn btn-warning">
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<main class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-9">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">Добавить нового доктора</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/adminPage/addDoctor}" th:method="post" th:object="${newDoctor}" class="needs-validation" novalidate>
+
+                        <div class="row g-3">
+
+                            <!-- Имя -->
+                            <div class="col-sm-6">
+                                <label for="firstName" class="form-label">Имя *</label>
+                                <input type="text" class="form-control" id="firstName"
+                                       th:field="*{firstName}" placeholder="Иван" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">
+                                    Valid first name is required.
+                                </div>
+                            </div>
+
+                            <!-- Фамилия -->
+                            <div class="col-sm-6">
+                                <label for="lastName" class="form-label">Фамилия *</label>
+                                <input type="text" class="form-control" id="lastName"
+                                       th:field="*{lastName}" placeholder="Петров" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">
+                                    Valid last name is required.
+                                </div>
+                            </div>
+
+                            <!-- Отчество -->
+                            <div class="col-12">
+                                <label for="middleName" class="form-label">Отчество</label>
+                                <input type="text" class="form-control" id="middleName"
+                                       th:field="*{middleName}" placeholder="Сергеевич">
+                                <div style="color: darkred" th:if="${#fields.hasErrors('middleName')}" th:errors="*{middleName}">
+                                    Please enter a valid middle name.
+                                </div>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="col-12">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email"
+                                       th:field="*{email}" placeholder="doctor@hospital.com" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">
+                                    Please enter a valid email address.
+                                </div>
+                            </div>
+
+                            <!-- Телефон с маской -->
+                            <div class="col-12">
+                                <label for="phone" class="form-label">Телефон *</label>
+                                <input type="text" class="form-control" id="phone"
+                                       th:field="*{phone}" placeholder="+375 (29) 123-45-67"
+                                       required
+                                       oninput="formatPhoneFull(this)">
+                                <small class="form-text text-muted">Формат: +375 (29) 123-45-67</small>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}">
+                                    Please enter a valid phone number.
+                                </div>
+                            </div>
+
+                            <!-- Дата рождения -->
+                            <div class="col-md-6">
+                                <label for="dateOfBirth" class="form-label">Дата рождения *</label>
+                                <input type="date" class="form-control" id="dateOfBirth"
+                                       th:field="*{dateOfBirth}" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('dateOfBirth')}" th:errors="*{dateOfBirth}">
+                                    Please enter your date of birth.
+                                </div>
+                            </div>
+
+                            <!-- Пол -->
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Пол *</label>
+                                <select class="form-select" id="gender" th:field="*{gender}" required>
+                                    <option value="">Выберите...</option>
+                                    <option th:each="gender : ${T(ru.kursach.MedProject.enums.Gender).values()}"
+                                            th:value="${gender}"
+                                            th:text="${gender.getTranslation()}"></option>
+                                </select>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('gender')}" th:errors="*{gender}">
+                                    Please select a valid gender.
+                                </div>
+                            </div>
+
+                            <!-- Адрес -->
+                            <div class="col-12">
+                                <label for="address" class="form-label">Адрес</label>
+                                <input type="text" class="form-control" id="address"
+                                       th:field="*{address}" placeholder="г. Минск, ул. Примерная, 123">
+                                <div style="color: darkred" th:if="${#fields.hasErrors('address')}" th:errors="*{address}">
+                                    Please enter a valid address.
+                                </div>
+                            </div>
+
+                            <!-- Медицинская лицензия -->
+                            <div class="col-md-6">
+                                <label for="medicalLicenseNumber" class="form-label">Номер медицинской лицензии *</label>
+                                <input type="text" class="form-control" id="medicalLicenseNumber"
+                                       th:field="*{medicalLicenseNumber}" placeholder="MED-123456" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('medicalLicenseNumber')}" th:errors="*{medicalLicenseNumber}">
+                                    Please enter a valid medical license number.
+                                </div>
+                            </div>
+
+                            <!-- Специализация -->
+                            <div class="col-md-6">
+                                <label for="specialization" class="form-label">Специализация *</label>
+                                <select class="form-select" id="specialization" th:field="*{specialization}" required>
+                                    <option value="">Выберите специализацию...</option>
+                                    <option th:each="spec : ${T(ru.kursach.MedProject.enums.Specialization).values()}"
+                                            th:value="${spec}"
+                                            th:text="${spec.getName()} + ' - ' + ${spec.getDescription()}"></option>
+                                </select>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('specialization')}" th:errors="*{specialization}">
+                                    Please select a valid specialization.
+                                </div>
+                            </div>
+
+                            <!-- Стаж работы -->
+                            <div class="col-md-6">
+                                <label for="experienceYears" class="form-label">Стаж работы (лет) *</label>
+                                <input type="number" class="form-control" id="experienceYears"
+                                       th:field="*{experienceYears}" placeholder="5" min="0" max="50" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('experienceYears')}" th:errors="*{experienceYears}">
+                                    Please enter valid experience years.
+                                </div>
+                            </div>
+
+                            <!-- Образование -->
+                            <div class="col-md-6">
+                                <label for="education" class="form-label">Образование *</label>
+                                <input type="text" class="form-control" id="education"
+                                       th:field="*{education}" placeholder="БГМУ, лечебный факультет" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('education')}" th:errors="*{education}">
+                                    Please enter education information.
+                                </div>
+                            </div>
+
+                            <!-- Биография с счетчиком символов -->
+                            <div class="col-12">
+                                <label for="bio" class="form-label">Биография / Описание специалиста</label>
+                                <textarea class="form-control" id="bio" th:field="*{bio}"
+                                          placeholder="Опытный специалист с многолетним стажем работы..."
+                                          rows="4" maxlength="1000"
+                                          oninput="updateCharCounter(this)"></textarea>
+                                <div class="d-flex justify-content-between align-items-center mt-1">
+                                    <small class="form-text text-muted">Краткое описание специалиста для пациентов</small>
+                                    <small class="form-text text-muted">
+                                        <span id="charCount">0</span>/1000 символов
+                                    </small>
+                                </div>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('bio')}" th:errors="*{bio}">
+                                    Please enter a valid bio.
+                                </div>
+                            </div>
+
+                            <!-- Пароль -->
+                            <div class="col-md-6">
+                                <label for="password" class="form-label">Пароль *</label>
+                                <input type="password" class="form-control" id="password"
+                                       th:field="*{password}" placeholder="" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                                    Please enter a valid password.
+                                </div>
+                            </div>
+
+                            <!-- Подтверждение пароля -->
+                            <div class="col-md-6">
+                                <label for="confirmPassword" class="form-label">Подтверждение пароля *</label>
+                                <input type="password" class="form-control" id="confirmPassword"
+                                       name="confirmPassword" placeholder="" required>
+                                <div style="color: darkred" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Checkbox согласия -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="confirmDoctor" required>
+                            <label class="form-check-label" for="confirmDoctor">
+                                Подтверждаю, что все данные врача проверены и корректны
+                            </label>
+                            <div class="invalid-feedback">
+                                Необходимо подтвердить корректность данных
+                            </div>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-success btn-lg flex-fill" type="submit">Добавить доктора</button>
+                            <a th:href="@{/adminPage}" class="btn btn-secondary btn-lg">Отмена</a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+
+
+<!-- Footer -->
+<footer class="py-3 my-4 mt-5">
+    <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Pricing</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
+        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
+    </ul>
+    <p class="text-center text-body-secondary">© 2025 Medical Project, Inc</p>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Форматирование полного номера телефона
+    function formatPhoneFull(input) {
+        // Удаляем все нецифровые символы, кроме плюса
+        let numbers = input.value.replace(/[^\d+]/g, '');
+
+        // Если начинается с +375, убираем для обработки
+        if (numbers.startsWith('+375')) {
+            numbers = numbers.substring(4);
+        }
+
+        // Форматируем в +375 (XX) XXX-XX-XX
+        if (numbers.length > 0) {
+            let formatted = '+375 (';
+            if (numbers.length > 0) {
+                formatted += numbers.substring(0, 2);
+            }
+            if (numbers.length > 2) {
+                formatted += ') ' + numbers.substring(2, 5);
+            }
+            if (numbers.length > 5) {
+                formatted += '-' + numbers.substring(5, 7);
+            }
+            if (numbers.length > 7) {
+                formatted += '-' + numbers.substring(7, 9);
+            }
+            input.value = formatted;
+        }
+    }
+
+    // Счетчик символов для биографии
+    function updateCharCounter(textarea) {
+        const charCount = document.getElementById('charCount');
+        const currentLength = textarea.value.length;
+        charCount.textContent = currentLength;
+
+        // Меняем цвет при приближении к лимиту
+        if (currentLength > 900) {
+            charCount.style.color = 'red';
+        } else if (currentLength > 800) {
+            charCount.style.color = 'orange';
+        } else {
+            charCount.style.color = 'green';
+        }
+    }
+
+    // Инициализация счетчика при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        const bioTextarea = document.getElementById('bio');
+        if (bioTextarea) {
+            updateCharCounter(bioTextarea);
+        }
+    });
+
+
+</script>
 
 </body>
 </html>

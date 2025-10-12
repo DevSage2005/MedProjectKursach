@@ -74,6 +74,9 @@ public class User {
     @Column(name="password")
     private String password;
 
+    @OneToOne(mappedBy = "doctor", cascade = CascadeType.ALL)
+    private Schedule schedule;
+
     @ElementCollection(targetClass = Roles.class, fetch = FetchType.EAGER)
     @CollectionTable(
             name = "user_role",

@@ -4,13 +4,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ru.kursach.MedProject.models.User;
+import ru.kursach.MedProject.models.DoctorScheduleWorkingHours;
 import ru.kursach.MedProject.services.UserService;
 
 import java.util.Objects;
 
 @Component
-public class UserValidator implements Validator {
+public class DoctorScheduleWorkingHoursValidator implements Validator {
 
     private final UserService userService;
     private String confirmPassword;
@@ -24,27 +24,27 @@ public class UserValidator implements Validator {
     }
 
     @Autowired
-    public UserValidator(UserService userService) {
+    public DoctorScheduleWorkingHoursValidator(UserService userService) {
         this.userService = userService;
     }
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return User.class.equals(clazz);
+        return DoctorScheduleWorkingHours.class.equals(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
-        User user = (User) target;
+        DoctorScheduleWorkingHours form = (DoctorScheduleWorkingHours) target;
 
-        if(userService.getUserByName(user.getEmail()).isPresent()){
-            errors.rejectValue("email", "","User with this email already exist!");
+        if(userService.getUserByName(form.getUser().getEmail()).isPresent()){
+            errors.rejectValue("user.email", "","User with this email already exist!");
         }
 
-        if(confirmPassword != null && !user.getPassword().equals(confirmPassword)){
-            errors.rejectValue("password", "mismatch", "Passwords do not match!");
+        if(confirmPassword != null && !form.getUser().getPassword().equals(confirmPassword)){
+            errors.rejectValue("user.password", "mismatch", "Passwords do not match!");
         } else if (Objects.equals(confirmPassword, "")) {
-            errors.rejectValue("password", "empty", "Password confirmation is required");
+            errors.rejectValue("user.password", "empty", "Password confirmation is required");
         }
 
 

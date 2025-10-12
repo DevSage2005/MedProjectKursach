@@ -8,16 +8,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import ru.kursach.MedProject.enums.DayOfWeek;
 import ru.kursach.MedProject.enums.Roles;
+import ru.kursach.MedProject.models.DoctorScheduleWorkingHours;
+import ru.kursach.MedProject.models.Schedule;
 import ru.kursach.MedProject.models.User;
+import ru.kursach.MedProject.models.WorkingHours;
 import ru.kursach.MedProject.services.AdminService;
 import ru.kursach.MedProject.services.UserService;
+import ru.kursach.MedProject.validators.DoctorScheduleWorkingHoursValidator;
 import ru.kursach.MedProject.validators.UserValidator;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.WeakHashMap;
 
 @Controller
 @RequestMapping("/adminPage")
@@ -25,13 +31,13 @@ public class AdminController {
 
     private final AdminService adminService;
     private final UserService userService;
-    private final UserValidator userValidator;
+    private final DoctorScheduleWorkingHoursValidator validator;
 
     @Autowired
-    public AdminController(AdminService adminService, UserService userService, UserValidator userValidator) {
+    public AdminController(AdminService adminService, UserService userService, DoctorScheduleWorkingHoursValidator validator) {
         this.adminService = adminService;
         this.userService = userService;
-        this.userValidator = userValidator;
+        this.validator = validator;
     }
 
     @GetMapping()
@@ -59,24 +65,52 @@ public class AdminController {
 
 
     @GetMapping("/addDoctor")
-    public String addDoctor(@ModelAttribute("newDoctor") User user){
+    public String addDoctor(Model model){
+        DoctorScheduleWorkingHours form =  new DoctorScheduleWorkingHours();
+        User user = new User();
+        Schedule schedule = new Schedule();
+        List<WorkingHours> workingHours = new ArrayList<>(7);
+
+
+        for(DayOfWeek d : DayOfWeek.values()){
+            WorkingHours workHour = new WorkingHours();
+            workHour.setDayOfWeek(d);
+            workingHours.add(workHour);
+        }
+
+        form.setUser(user);
+        form.setSchedule(schedule);
+        form.setWorkingHours(workingHours);
+        model.addAttribute("form", form);
         return "user/addDoctor";
     }
 
     @PostMapping("/addDoctor")
-    public String saveDoctor(@RequestParam("confirmPassword") String confirmPassword, @Valid @ModelAttribute("newDoctor") User user, BindingResult bindingResult){
+    public String saveDoctor(@RequestParam("confirmPassword") String confirmPassword, @Valid @ModelAttribute("form") DoctorScheduleWorkingHours form, BindingResult bindingResult){
 
-        userValidator.setConfirmPassword(confirmPassword);
-        userValidator.validate(user, bindingResult);
-        userValidator.reset();
+
+        validator.setConfirmPassword(confirmPassword);
+        validator.validate(form, bindingResult);
+        validator.reset();
 
         if(bindingResult.hasErrors()){
             return "user/addDoctor";
         }
 
-        user.addRole(Roles.ROLE_DOCTOR);
-        user.setCreatedAt(LocalDateTime.now());
-        userService.save(user);
+
+
+
+
+        form.getUser().addRole(Roles.ROLE_DOCTOR);
+        form.getUser().setCreatedAt(LocalDateTime.now());
+        userService.save(form.getUser());
+        form.getSchedule().setDoctor(form.getUser());
+        adminService.saveSchedule(form.getSchedule());
+        for(WorkingHours wh: form.getWorkingHours())
+        {
+            wh.setSchedule(form.getSchedule());
+        }
+        adminService.saveWorkingHours(form.getWorkingHours());
         return "redirect:/adminPage";
     }
 

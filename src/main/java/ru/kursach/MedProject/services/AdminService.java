@@ -40,7 +40,7 @@ public class AdminService {
     public void setRoleForUser(int id, String role){
         User user = userService.getUserById(id);
         Roles newRole = Roles.valueOf(role);
-        user.addRole(newRole);
+        user.setRole(newRole);
         userRepository.save(user);
     }
 
@@ -48,13 +48,6 @@ public class AdminService {
         scheduleRepository.save(schedule);
     }
 
-
-    public void deleteRoleFromUser(int id, String deleteRole) {
-        User user = userService.getUserById(id);
-        Roles role = Roles.valueOf(deleteRole);
-        user.deleteRole(role);
-        userRepository.save(user);
-    }
 
     public void saveWorkingHours(List<WorkingHours> workingHours) {
         workingHoursRepository.saveAll(workingHours);

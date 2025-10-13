@@ -123,6 +123,7 @@
                 <li><a th:href="@{/main/about}" class="nav-link px-2 text-white">About</a></li>
                 <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель
                     администратора</a></li>
+                <li sec:authorize="hasAnyRole('ADMIN', 'USER')"><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-white">Найти врача для бронирования</a></li>
             </ul>
             <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search"><input type="search"
                                                                                        class="form-control form-control-dark text-bg-dark"

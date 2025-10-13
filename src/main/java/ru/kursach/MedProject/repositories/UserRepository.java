@@ -5,8 +5,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.kursach.MedProject.enums.Roles;
+import ru.kursach.MedProject.enums.Specialization;
 import ru.kursach.MedProject.models.User;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -14,6 +16,7 @@ import java.util.Set;
 public interface UserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByEmail(String name);
     User findUserById(int id);
-    @Query("SELECT u FROM User u JOIN u.role r WHERE r = :role")
-    Set<User> findByRole(@Param("role") Roles role);
+    List<User> findByRole(Roles role);
+    void deleteUserByRole(Roles role);
+    List<User> findUserByRoleAndSpecialization(Roles role, Specialization specialization);
 }

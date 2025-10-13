@@ -16,13 +16,14 @@ public class PesonDetails implements UserDetails {
     }
 
 
+    public User getUser() {
+        return user;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-
         if (user.getRole() != null) {
-            return user.getRole().stream()
-                    .map(role -> new SimpleGrantedAuthority(role.name()))
-                    .collect(Collectors.toList());
+            return List.of(new SimpleGrantedAuthority(user.getRole().name()));
         }
         return List.of();
     }

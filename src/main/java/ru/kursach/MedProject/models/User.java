@@ -74,71 +74,47 @@ public class User {
     @Column(name="password")
     private String password;
 
-    @OneToOne(mappedBy = "doctor", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "doctor")
     private Schedule schedule;
 
-    @ElementCollection(targetClass = Roles.class, fetch = FetchType.EAGER)
-    @CollectionTable(
-            name = "user_role",
-            joinColumns = @JoinColumn(name = "user_id")
-    )
+
     @Enumerated(EnumType.STRING)
     @Column(name="role_name")
-    private Set<Roles> role = new LinkedHashSet<>();
+    private Roles role;
+
+    @OneToMany(mappedBy = "user" , fetch = FetchType.LAZY)
+    private List<Appointment> appointment;
 
 
-    public Set<Roles> getRole() {
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
+    }
+
+    public Roles getRole() {
         return role;
     }
 
 
-    public void addRole(Roles role){
-        this.getRole().add(role);
-    }
-
-    public void deleteRole(Roles role){
-        this.getRole().removeIf(r -> r.name().equals(role.name()));
-    }
-
-    public boolean isAdmin(){
-        for(Roles r : role){
-            if(r==Roles.ROLE_ADMIN)
-                return true;
-        }
-        return false;
-    }
-
-    public boolean isSimpleUser(){
-        for(Roles r : role){
-            if(r==Roles.ROLE_USER)
-                return true;
-        }
-        return false;
-    }
-
-    public boolean isDoctor(){
-        for(Roles r : role){
-            if(r==Roles.ROLE_DOCTOR)
-                return true;
-        }
-        return false;
-    }
-
-
-    public String getAllRoles(){
-        StringBuilder roles = new StringBuilder();
-        for(Roles role:this.getRole()){
-
-            roles.append(", ").append(role.getTranslation());
-        }
-        roles.delete(0,1);
-        return roles.toString();
-    }
-
-    public void setRole(Set<Roles> role) {
+    public void setRole(Roles role) {
         this.role = role;
     }
 
+    public boolean isAdmin(){
+
+        return this.role==Roles.ROLE_ADMIN;
+    }
+
+    public boolean isSimpleUser(){
+        return this.role==Roles.ROLE_USER;
+    }
+
+    public boolean isDoctor(){
+        return this.role==Roles.ROLE_DOCTOR;
+    }
 
 
     public User() {

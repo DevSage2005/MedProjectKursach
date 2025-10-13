@@ -64,7 +64,7 @@
                                     Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
                                 </div>
                                 <div class="text-muted small">
-                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getAllRoles()}"></span>
+                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getRole().getTranslation()}"></span>
                                 </div>
                             </div>
                         </div>
@@ -76,37 +76,17 @@
                                 </div>
                                 <div class="col-auto">
                                     <select id="roleAd" name="newRole" class="form-select form-select-sm" style="width: 160px;">
-                                        <option th:each="role : ${userRoles}"
-                                                th:value="${role.name()}"
-                                                th:text="${role.getTranslation()}">
+                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
+                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
+                                        </option>
+                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
+                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
                                         </option>
                                     </select>
                                 </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn btn-primary btn-sm px-3">
                                         Назначить
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-
-                        <form th:action="@{/adminPage/deleteRole/{id}(id = ${user.getId()})}" method="POST" class="mt-2">
-                            <div class="row g-2 align-items-center">
-                                <div class="col-auto">
-                                    <label for="removeRoleAdmin" class="form-label small mb-0">Удалить роль:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select id="removeRoleAdmin" name="deleteRole" class="form-select form-select-sm"
-                                            style="width: 160px;">
-                                        <option th:each="role : ${userRoles}"
-                                                th:value="${role.name()}"
-                                                th:text="${role.getTranslation()}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-danger btn-sm px-3">
-                                        Удалить
                                     </button>
                                 </div>
                             </div>
@@ -139,7 +119,7 @@
                                     Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
                                 </div>
                                 <div class="text-muted small">
-                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getAllRoles()}"></span>
+                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getRole().getTranslation()}"></span>
                                 </div>
                             </div>
                         </div>
@@ -151,9 +131,11 @@
                                 </div>
                                 <div class="col-auto">
                                     <select id="role" name="newRole" class="form-select form-select-sm" style="width: 160px;">
-                                        <option th:each="role : ${userRoles}"
-                                                th:value="${role.name()}"
-                                                th:text="${role.getTranslation()}">
+                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
+                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
+                                        </option>
+                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
+                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
                                         </option>
                                     </select>
                                 </div>
@@ -165,27 +147,7 @@
                             </div>
                         </form>
 
-                        <form th:action="@{/adminPage/deleteRole/{id}(id = ${user.getId()})}" method="POST" class="mt-2">
-                            <div class="row g-2 align-items-center">
-                                <div class="col-auto">
-                                    <label for="removeRoleUser" class="form-label small mb-0">Удалить роль:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select id="removeRoleUser" name="deleteRole" class="form-select form-select-sm"
-                                            style="width: 160px;">
-                                        <option th:each="role : ${userRoles}"
-                                                th:value="${role.name()}"
-                                                th:text="${role.getTranslation()}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-danger btn-sm px-3">
-                                        Удалить
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+
                     </div>
                 </div>
             </div>
@@ -214,7 +176,7 @@
                                     Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
                                 </div>
                                 <div class="text-muted small">
-                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getAllRoles()}"></span>
+                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getRole().getTranslation()}"></span>
                                 </div>
                             </div>
                         </div>
@@ -227,9 +189,11 @@
                                 <div class="col-auto">
                                     <select id="roleDoc" name="newRole" class="form-select form-select-sm"
                                             style="width: 160px;">
-                                        <option th:each="role : ${userRoles}"
-                                                th:value="${role.name()}"
-                                                th:text="${role.getTranslation()}">
+                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
+                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
+                                        </option>
+                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
+                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
                                         </option>
                                     </select>
                                 </div>
@@ -241,27 +205,7 @@
                             </div>
                         </form>
 
-                        <form th:action="@{/adminPage/deleteRole/{id}(id = ${user.getId()})}" method="POST" class="mt-2">
-                            <div class="row g-2 align-items-center">
-                                <div class="col-auto">
-                                    <label for="removeRoleDoctor" class="form-label small mb-0">Удалить роль:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select id="removeRoleDoctor" name="deleteRole" class="form-select form-select-sm"
-                                            style="width: 160px;">
-                                        <option th:each="role : ${userRoles}"
-                                                th:value="${role.name()}"
-                                                th:text="${role.getTranslation()}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-danger btn-sm px-3">
-                                        Удалить
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
+
                     </div>
                 </div>
             </div>

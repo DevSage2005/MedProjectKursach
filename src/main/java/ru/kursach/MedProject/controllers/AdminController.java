@@ -57,12 +57,6 @@ public class AdminController {
 
     }
 
-    @PostMapping("/deleteRole/{id}")
-    public String deleteUserRole(@PathVariable("id") int id, @RequestParam("deleteRole") String deleteRole){
-        adminService.deleteRoleFromUser(id,deleteRole);
-        return "redirect:/adminPage";
-    }
-
 
     @GetMapping("/addDoctor")
     public String addDoctor(Model model){
@@ -101,7 +95,7 @@ public class AdminController {
 
 
 
-        form.getUser().addRole(Roles.ROLE_DOCTOR);
+        form.getUser().setRole(Roles.ROLE_DOCTOR);
         form.getUser().setCreatedAt(LocalDateTime.now());
         userService.save(form.getUser());
         form.getSchedule().setDoctor(form.getUser());

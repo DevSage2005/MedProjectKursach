@@ -8,7 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.kursach.MedProject.enums.BookStatus;
-import ru.kursach.MedProject.enums.DayOfWeek;
 import ru.kursach.MedProject.enums.Roles;
 import ru.kursach.MedProject.enums.Specialization;
 import ru.kursach.MedProject.models.*;
@@ -18,11 +17,9 @@ import ru.kursach.MedProject.repositories.UserRepository;
 import ru.kursach.MedProject.services.UserService;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/user")
@@ -44,37 +41,38 @@ public class UserController {
     }
 
     @GetMapping("/searchDoctors")
-    public String getDoctors(){
-        return "user/appointment";
+    public String getDoctors(@RequestParam(value = "specialization", required = false) String spec, Model model){
+        List<User> doctors;
+        if(spec != null && !spec.equals("all") && !spec.isEmpty()) {
+            try {
+                Specialization specialization = Specialization.valueOf(spec);
+                doctors = userRepository.findUserByRoleAndSpecialization(Roles.ROLE_DOCTOR, specialization);
+                model.addAttribute("selectedSpecialization", specialization);
+            } catch (IllegalArgumentException e) {
+                doctors = userRepository.findByRole(Roles.ROLE_DOCTOR);
+            }
+        } else {
+            doctors = userRepository.findByRole(Roles.ROLE_DOCTOR);
+        }
+        model.addAttribute("doctors", doctors);
+        return "user/searchDoctor";
     }
 
     @GetMapping("/bookDoctor/{doctor_id}")
-    public String bookDoctor(@PathVariable("doctor_id") int doctor_id, Model model){
-        model.addAttribute("selectedDoctor",userRepository.findUserById(doctor_id));
+    public String bookDoctor(@PathVariable("doctor_id") int doctor_id, @RequestParam(value = "date", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Model model){
+        User doctor = userRepository.findUserById(doctor_id);
+        if(date!=null) {
+            Date utilDate = java.sql.Date.valueOf(date);
+            model.addAttribute("slots", userService.getSlots(utilDate, doctor));
+            model.addAttribute("selectedDate", date);
+        }
+
+        model.addAttribute("selectedDoctor",doctor);
         return "user/bookDoctor";
     }
 
-    @PostMapping("/searchDoctors")
-    public String showDoctors(@RequestParam("specialization") String spec, Model model){
-
-        Specialization specialization = Specialization.valueOf(spec);
-        model.addAttribute("doctors", userRepository.findUserByRoleAndSpecialization(Roles.ROLE_DOCTOR, specialization));
-        model.addAttribute("selectedSpecialization", specialization);
-        return "user/appointment";
-    }
-
-    @PostMapping("/bookDoctor/{doctor_id}")
-    public String bookedDoctor(@PathVariable("doctor_id") int doctor_id, @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, Model model){
-        User doctor =  userRepository.findUserById(doctor_id);
-        Date utilDate = java.sql.Date.valueOf(date);
-        model.addAttribute("slots", userService.getSlots(utilDate, doctor));
-        model.addAttribute("selectedDoctor", doctor);
-        model.addAttribute("selectedDate", date);
-        return "user/bookDoctor";
-    }
-
-    @PostMapping("/showConfirmation")
-    public String confirmation(@RequestParam("doctorId") int doctor_id, @RequestParam("date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, @RequestParam("selectedTime") LocalTime time) throws ParseException {
+    @PostMapping("/confirmation")
+    public String confirmation(@RequestParam("doctorId") int doctor_id, @RequestParam(value = "date") @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate date, @RequestParam("selectedTime") LocalTime time) throws ParseException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         PesonDetails pesonDetails = (PesonDetails) authentication.getPrincipal();
         Date sqlDate = java.sql.Date.valueOf(date);
@@ -88,6 +86,54 @@ public class UserController {
         appointmentRepository.save(appointment);
         return "redirect:/main/index";
     }
+
+    @GetMapping("/appointments")
+    public String getAppointments(@RequestParam(value = "filter", defaultValue = "all") String filter,Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PesonDetails pesonDetails = (PesonDetails) authentication.getPrincipal();
+        User user = pesonDetails.getUser();
+        List<Appointment> appointments = appointmentRepository.findAllByUser(user);
+        user.setAppointment(appointments);
+
+        List<Appointment> filteredAppointments;
+        switch (filter) {
+            case "upcoming":
+                filteredAppointments = user.getAppointmentsByStatus(BookStatus.SCHEDULED);
+                break;
+            case "completed":
+                filteredAppointments = user.getAppointmentsByStatus(BookStatus.COMPLETED);
+                break;
+            case "cancelled":
+                filteredAppointments = user.getAppointmentsByStatus(BookStatus.CANCELLED);
+                break;
+            default:
+                filteredAppointments = appointments;
+                break;
+        }
+
+        model.addAttribute("appointments", filteredAppointments);
+        model.addAttribute("allAppointments", appointments);
+        model.addAttribute("user", user);
+        model.addAttribute("upcomingCount", user.getAppointmentsByStatus(BookStatus.SCHEDULED));
+        model.addAttribute("completedCount", user.getAppointmentsByStatus(BookStatus.COMPLETED));
+        model.addAttribute("cancelledCount", user.getAppointmentsByStatus(BookStatus.CANCELLED));
+        model.addAttribute("currentFilter", filter);
+        return "user/appointments";
+    }
+
+    @PostMapping("/appointments/cancel/{id}")
+    public String cancelAppointment(@PathVariable("id") int id) {
+        Appointment appointment = appointmentRepository.findById(id).orElse(null);
+        if (appointment != null) {
+            appointment.setStatus(BookStatus.CANCELLED);
+            appointmentRepository.save(appointment);
+        }
+        return "redirect:/user/appointments";
+    }
+
+
+
+
 
 
 }

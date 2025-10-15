@@ -251,8 +251,7 @@
             </div>
 
 
-            <!-- Форма для перехода на страницу подтверждения -->
-            <form th:if="${slots != null and not slots.isEmpty()}" th:action="@{/user/showConfirmation}" th:method="post" class="mt-4">
+            <form th:if="${slots != null and not slots.isEmpty()}" th:action="@{/user/confirmation}" th:method="post" class="mt-4">
                 <input type="hidden" name="doctorId" th:value="${selectedDoctor.id}">
                 <input type="hidden" name="date" th:value="${#temporals.format(selectedDate, 'yyyy-MM-dd')}">
 
@@ -280,7 +279,7 @@
 
 
 
-            <form th:if="${slots == null or slots.isEmpty()}"  th:action="@{/user/bookDoctor/{doctor_id}(doctor_id=${selectedDoctor.getId()})}" th:method="post" class="mt-4">
+            <form th:if="${slots == null or slots.isEmpty()}"  th:action="@{/user/bookDoctor/{doctor_id}(doctor_id=${selectedDoctor.getId()})}" th:method="GET" class="mt-4">
             <div class="col-sm-6">
                 <label for="date" class="form-label">Выберите дату</label>
                 <input id="date" type="date" name="date" class="form-control"

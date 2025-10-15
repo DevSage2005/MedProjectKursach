@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск врачей - Медицинский проект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .search-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .doctor-card {
+            border-left: 4px solid #28a745;
+            transition: transform 0.2s;
+            margin-bottom: 1.5rem;
+        }
+        .doctor-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .doctor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            margin: 0 auto 1rem;
+        }
+        .specialization-badge {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+        }
+        .experience-badge {
+            background: linear-gradient(45deg, #ff6b6b, #ee5a52);
+            color: white;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/user/bookAppointment}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
+            </ul>
+            <div class="text-end">
+                <span class="text-white me-3" sec:authentication="name"></span>
+                <form th:method="POST" th:action="@{/logout}" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <!-- Хлебные крошки -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/main/index}">Главная</a></li>
+            <li class="breadcrumb-item active">Поиск врачей</li>
+        </ol>
+    </nav>
+
+    <!-- Заголовок страницы -->
+    <div class="search-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-search me-3"></i>Поиск врачей
+                </h1>
+                <p class="lead mb-0">Найдите подходящего специалиста для записи на прием</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a th:href="@{/user/appointments}" class="btn btn-light btn-lg">
+                    <i class="fas fa-calendar-check me-2"></i>Мои записи
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h4 class="mb-0"><i class="fas fa-filter me-2"></i>Фильтр поиска</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/user/searchDoctors}" th:method="GET" class="needs-validation" novalidate>
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-8">
+                                <label for="specialization" class="form-label fw-semibold">Специализация врача</label>
+                                <select id="specialization" name="specialization" class="form-select form-select-lg">
+                                    <option value="all" th:selected="${selectedSpecialization == null}">Все специализации</option>
+                                    <option th:each="spec : ${T(ru.kursach.MedProject.enums.Specialization).values()}"
+                                            th:value="${spec.name()}"
+                                            th:text="${spec.getName()}"
+                                            th:selected="${selectedSpecialization != null and spec.name() == selectedSpecialization.name()}">
+                                    </option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-success btn-lg w-100" type="submit">
+                                    <i class="fas fa-search me-2"></i>Найти врачей
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Результаты поиска -->
+            <div th:if="${doctors != null and not doctors.isEmpty()}" class="mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="mb-0">
+                        <i class="fas fa-user-md me-2 text-success"></i>
+                        Найдено врачей: <span class="badge bg-success fs-6" th:text="${doctors.size()}"></span>
+                    </h4>
+                    <div class="text-muted">
+                        <span th:if="${selectedSpecialization != null}"
+                              class="badge bg-primary fs-6">
+                            Специализация: <span th:text="${selectedSpecialization.getName()}"></span>
+                        </span>
+                        <span th:if="${selectedSpecialization == null}"
+                              class="badge bg-secondary fs-6">
+                            Все специализации
+                        </span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div th:each="doctor : ${doctors}" class="col-lg-6 mb-4">
+                        <div class="card doctor-card shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-3 text-center">
+                                        <div class="doctor-avatar">
+                                            <i class="fas fa-user-md"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <h5 class="card-title mb-2"
+                                            th:text="${doctor.lastName + ' ' + doctor.firstName + ' ' + doctor.middleName}">
+                                        </h5>
+
+                                        <div class="mb-2">
+                                            <span class="badge specialization-badge fs-6 p-2"
+                                                  th:text="${doctor.specialization?.getName()}">
+                                            </span>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <span class="badge experience-badge fs-6 p-2">
+                                                <i class="fas fa-briefcase me-1"></i>
+                                                Опыт: <span th:text="${doctor.experienceYears}"></span> лет
+                                            </span>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <small class="text-muted">
+                                                <i class="fas fa-map-marker-alt me-1"></i>
+                                                <span th:text="${doctor.address}"></span>
+                                            </small>
+                                        </div>
+
+                                        <div class="btn-group w-100">
+                                            <a th:href="@{/user/bookDoctor/{doctor_id}(doctor_id=${doctor.id})}"
+                                               class="btn btn-success btn-sm">
+                                                <i class="fas fa-calendar-plus me-1"></i>Записаться
+                                            </a>
+                                            <button class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-info-circle me-1"></i>Подробнее
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Состояние пустого списка -->
+            <div th:if="${doctors != null and doctors.isEmpty()}" class="text-center mt-5">
+                <div class="empty-state">
+                    <i class="fas fa-user-md fa-4x mb-3"></i>
+                    <h3>Врачи не найдены</h3>
+                    <p class="text-muted mb-4" th:if="${selectedSpecialization != null}">
+                        По выбранной специализации "<span th:text="${selectedSpecialization.getName()}"></span>" врачей не найдено.
+                    </p>
+                    <p class="text-muted mb-4" th:if="${selectedSpecialization == null}">
+                        В системе пока нет зарегистрированных врачей.
+                    </p>
+                    <a th:href="@{/user/searchDoctors}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-redo me-2"></i>Показать всех врачей
+                    </a>
+                </div>
+            </div>
+
+            <!-- Состояние до поиска -->
+            <div th:if="${doctors == null}" class="text-center mt-5">
+                <div class="empty-state">
+                    <i class="fas fa-search fa-4x mb-3"></i>
+                    <h3>Выберите специализацию</h3>
+                    <p class="text-muted mb-4">Используйте фильтр выше для поиска врачей по специализации</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

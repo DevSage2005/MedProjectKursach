@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои записи - Медицинский проект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+
+        .filter-cards {
+            justify-content: flex-end;
+        }
+
+        .filter-card {
+            min-width: 120px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .filter-card:not(.active) {
+            background: #f8f9fa;
+            color: #6c757d;
+            border-color: #e9ecef;
+        }
+
+        .filter-card:not(.active):hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #dee2e6;
+        }
+
+        .filter-card.active {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+
+        .filter-card.active[th\:classappend*="all"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-card.active[th\:classappend*="upcoming"] {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-color: #28a745;
+        }
+
+        .filter-card.active[th\:classappend*="completed"] {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            color: white;
+            border-color: #6c757d;
+        }
+
+        .filter-card.active[th\:classappend*="cancelled"] {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .count-badge {
+            background: rgba(255,255,255,0.2);
+            color: inherit;
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .appointments-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .appointment-card {
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s;
+            margin-bottom: 1rem;
+        }
+        .appointment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .status-badge {
+            font-size: 0.85rem;
+        }
+        .user-info-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .doctor-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .filter-buttons .btn-group {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .avatar-container {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/user/bookAppointment}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
+            </ul>
+            <div class="text-end">
+                <span class="text-white me-3" sec:authentication="name"></span>
+                <form th:method="POST" th:action="@{/logout}" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a th:href="@{/main/index}">Главная</a></li>
+            <li class="breadcrumb-item active">Мои записи</li>
+        </ol>
+    </nav>
+
+    <div class="appointments-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-calendar-check me-3"></i>Мои записи
+                </h1>
+                <p class="lead mb-0">Здесь вы можете просмотреть все ваши текущие и завершенные записи к врачам</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a th:href="@{/user/searchDoctors}" class="btn btn-light btn-lg">
+                    <i class="fas fa-plus me-2"></i>Новая запись
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <div class="avatar-container mb-3">
+                        <i class="fas fa-user"></i>
+                    </div>
+
+                    <h3 class="card-title" th:text="${user.lastName + ' ' + user.firstName + ' ' + user.middleName}"></h3>
+
+                    <div class="text-start mt-4">
+                        <h5 class="border-bottom pb-2">Контактная информация</h5>
+                        <div class="mb-2">
+                            <i class="fas fa-phone text-primary me-2"></i>
+                            <span th:text="${user.phone}"></span>
+                        </div>
+                        <div class="mb-2">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <span th:text="${user.email}"></span>
+                        </div>
+                        <div class="mb-2" th:if="${user.dateOfBirth != null}">
+                            <i class="fas fa-birthday-cake text-primary me-2"></i>
+                            <span th:text="${#dates.format(user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                        </div>
+                        <div class="mb-2" th:unless="${user.dateOfBirth != null}">
+                            <i class="fas fa-birthday-cake text-primary me-2"></i>
+                            <span class="text-muted">Дата рождения не указана</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-md-6">
+                            <h5 class="mb-0">Всего записей: <span class="badge bg-primary" th:text="${allAppointments != null ? allAppointments.size() : 0}"></span></h5>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="filter-buttons text-md-end">
+                                <div class="d-flex flex-wrap gap-2 filter-cards">
+                                    <a th:href="@{/user/appointments(filter='all')}"
+                                       class="filter-card text-decoration-none"
+                                       th:classappend="${currentFilter == 'all'} ? 'active' : ''">
+                                        <div class="card-body text-center p-3">
+                                            <i class="fas fa-list fa-lg mb-2"></i>
+                                            <div class="fw-semibold">Все</div>
+                                            <div class="count-badge" th:text="${allAppointments != null ? allAppointments.size() : 0}"></div>
+                                        </div>
+                                    </a>
+
+                                    <a th:href="@{/user/appointments(filter='upcoming')}"
+                                       class="filter-card text-decoration-none"
+                                       th:classappend="${currentFilter == 'upcoming'} ? 'active' : ''">
+                                        <div class="card-body text-center p-3">
+                                            <i class="fas fa-clock fa-lg mb-2"></i>
+                                            <div class="fw-semibold">Предстоящие</div>
+                                            <div class="count-badge" th:text="${upcomingCount != null ? upcomingCount.size() : 0}"></div>
+                                        </div>
+                                    </a>
+
+                                    <a th:href="@{/user/appointments(filter='completed')}"
+                                       class="filter-card text-decoration-none"
+                                       th:classappend="${currentFilter == 'completed'} ? 'active' : ''">
+                                        <div class="card-body text-center p-3">
+                                            <i class="fas fa-check-circle fa-lg mb-2"></i>
+                                            <div class="fw-semibold">Завершенные</div>
+                                            <div class="count-badge" th:text="${completedCount != null ? completedCount.size() : 0}"></div>
+                                        </div>
+                                    </a>
+
+                                    <a th:href="@{/user/appointments(filter='cancelled')}"
+                                       class="filter-card text-decoration-none"
+                                       th:classappend="${currentFilter == 'cancelled'} ? 'active' : ''">
+                                        <div class="card-body text-center p-3">
+                                            <i class="fas fa-times-circle fa-lg mb-2"></i>
+                                            <div class="fw-semibold">Отмененные</div>
+                                            <div class="count-badge" th:text="${cancelledCount != null ? cancelledCount.size() : 0}"></div>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${appointments != null and !appointments.isEmpty()}">
+                <div th:each="appointment : ${appointments}" class="card appointment-card shadow-sm mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2 text-center">
+                                <div class="doctor-avatar mx-auto mb-2">
+                                    <i class="fas fa-user-md"></i>
+                                </div>
+                                <small class="text-muted">Врач</small>
+                            </div>
+
+                            <div class="col-md-4">
+                                <h6 class="card-title mb-1"
+                                    th:text="${appointment.doctor.lastName + ' ' + appointment.doctor.firstName + ' ' + appointment.doctor.middleName}">
+                                </h6>
+                                <p class="text-muted mb-1" th:text="${appointment.doctor.specialization?.getName()}"></p>
+                                <small class="text-muted">
+                                    <i class="fas fa-briefcase me-1"></i>
+                                    Опыт: <span th:text="${appointment.doctor.experienceYears}"></span> лет
+                                </small>
+                            </div>
+
+                            <div class="col-md-4">
+                                <div class="mb-2">
+                                    <i class="fas fa-calendar-day text-primary me-2"></i>
+                                    <strong th:text="${#dates.format(appointment.date, 'dd.MM.yyyy')}"></strong>
+                                </div>
+                                <div class="mb-2">
+                                    <i class="fas fa-clock text-primary me-2"></i>
+                                    <strong th:text="${#temporals.format(appointment.slot, 'HH:mm')}"></strong>
+                                </div>
+                                <small class="text-muted">
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                    <span th:text="${appointment.doctor.address}"></span>
+                                </small>
+                            </div>
+
+                            <div class="col-md-2 text-center">
+                                <span th:if="${appointment.status.name() == 'SCHEDULED'}"
+                                      class="badge bg-success status-badge mb-2">Запланировано</span>
+                                <span th:if="${appointment.status.name() == 'COMPLETED'}"
+                                      class="badge bg-secondary status-badge mb-2">Завершено</span>
+                                <span th:if="${appointment.status.name() == 'CANCELLED'}"
+                                      class="badge bg-danger status-badge mb-2">Отменено</span>
+
+                                <div class="btn-group-vertical w-100">
+                                    <button class="btn btn-outline-primary btn-sm mb-1">
+                                        <i class="fas fa-eye me-1"></i>Подробнее
+                                    </button>
+                                    <form th:if="${appointment.status.name() == 'SCHEDULED'}"
+                                          th:action="@{/user/appointments/cancel/{id}(id=${appointment.id})}"
+                                          th:method="POST"
+                                          class="d-inline">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm"
+                                                onclick="return confirm('Вы уверены, что хотите отменить запись?')">
+                                            <i class="fas fa-times me-1"></i>Отменить
+                                        </button>
+                                    </form>
+                                    <button th:if="${appointment.status.name() == 'COMPLETED'}"
+                                            class="btn btn-outline-success btn-sm">
+                                        <i class="fas fa-redo me-1"></i>Повторить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div th:if="${appointments == null or appointments.isEmpty()}" class="text-center">
+                <div class="empty-state">
+                    <i class="fas fa-calendar-times fa-4x mb-3"></i>
+                    <h3>Записей не найдено</h3>
+                    <p class="text-muted mb-4" th:if="${currentFilter == 'all'}">У вас пока нет записей к врачам. Запишитесь на прием прямо сейчас!</p>
+                    <p class="text-muted mb-4" th:if="${currentFilter != 'all'}">Записей с выбранным фильтром не найдено.</p>
+                    <a th:href="@{/user/searchDoctors}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-plus me-2"></i>Записаться на прием
+                    </a>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white text-center">
+                        <div class="card-body">
+                            <h4 class="card-title" th:text="${allAppointments != null ? allAppointments.size() : 0}">0</h4>
+                            <p class="card-text mb-0">Всего записей</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white text-center">
+                        <div class="card-body">
+                            <h4 class="card-title" th:text="${!upcomingCount.isEmpty() ? upcomingCount.size() : 0}">0</h4>
+                            <p class="card-text mb-0">Предстоящие</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-secondary text-white text-center">
+                        <div class="card-body">
+                            <h4 class="card-title" th:text="${!completedCount.isEmpty() ? completedCount.size() : 0}">0</h4>
+                            <p class="card-text mb-0">Завершенные</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

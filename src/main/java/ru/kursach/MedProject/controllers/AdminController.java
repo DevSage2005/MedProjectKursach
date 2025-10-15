@@ -90,11 +90,6 @@ public class AdminController {
         if(bindingResult.hasErrors()){
             return "user/addDoctor";
         }
-
-
-
-
-
         form.getUser().setRole(Roles.ROLE_DOCTOR);
         form.getUser().setCreatedAt(LocalDateTime.now());
         userService.save(form.getUser());

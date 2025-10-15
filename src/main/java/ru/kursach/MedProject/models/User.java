@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Component;
+import ru.kursach.MedProject.enums.BookStatus;
 import ru.kursach.MedProject.enums.Gender;
 import ru.kursach.MedProject.enums.Roles;
 import ru.kursach.MedProject.enums.Specialization;
@@ -85,6 +86,13 @@ public class User {
     @OneToMany(mappedBy = "user" , fetch = FetchType.LAZY)
     private List<Appointment> appointment;
 
+    public List<Appointment> getAppointment() {
+        return appointment;
+    }
+
+    public void setAppointment(List<Appointment> appointment) {
+        this.appointment = appointment;
+    }
 
     public Schedule getSchedule() {
         return schedule;
@@ -98,6 +106,15 @@ public class User {
         return role;
     }
 
+    public List<Appointment> getAppointmentsByStatus(BookStatus status){
+        List<Appointment> returnList = new ArrayList<>();
+        for(Appointment a: appointment){
+            if(a.getStatus()==status){
+                returnList.add(a);
+            }
+        }
+        return returnList;
+    }
 
     public void setRole(Roles role) {
         this.role = role;

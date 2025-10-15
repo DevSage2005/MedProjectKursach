@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.kursach.MedProject.enums.Roles;
 import ru.kursach.MedProject.enums.Specialization;
+import ru.kursach.MedProject.models.Appointment;
 import ru.kursach.MedProject.models.User;
 
 import java.util.List;
@@ -19,4 +20,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     List<User> findByRole(Roles role);
     void deleteUserByRole(Roles role);
     List<User> findUserByRoleAndSpecialization(Roles role, Specialization specialization);
+
 }

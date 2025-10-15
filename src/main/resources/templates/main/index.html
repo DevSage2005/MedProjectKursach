@@ -1,229 +1,248 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>Главная страница</title>
+    <title>Медицинский проект - Главная</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .specialization-header {
+        .hero-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem 0;
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            margin: 2rem 0;
+        }
+
+        .specialization-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 2.5rem 0;
             margin: 3rem 0 2rem 0;
             border-radius: 15px;
             text-align: center;
-        }
-
-        .carousel-control-prev,
-        .carousel-control-next {
-            width: 5%;
-            margin: 0 10px;
-        }
-
-        .carousel-control-prev-icon,
-        .carousel-control-next-icon{
-            background-color: #4c4747;
-            border-radius: 50%;
-        }
-
-
-
-        .carousel-item {
-            transition: transform 0.6s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .doctor-card {
             border: none;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.08);
             transition: all 0.3s ease;
             margin-bottom: 2rem;
-            padding: 2rem;
+            padding: 2.5rem;
             text-align: center;
             height: 100%;
+            background: white;
         }
 
         .doctor-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
 
         .doctor-avatar {
-            width: 140px;
-            height: 140px;
-            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             border-radius: 50%;
             margin: 0 auto 1.5rem auto;
             display: flex;
             align-items: center;
             justify-content: center;
             border: 4px solid white;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+        }
+
+        .doctor-avatar i {
+            font-size: 2.5rem;
+            color: white;
         }
 
         .doctor-name {
             color: #2c3e50;
-            font-weight: 600;
+            font-weight: 700;
             margin-bottom: 1rem;
-            line-height: 1.4;
+            font-size: 1.3rem;
         }
 
         .doctor-bio {
             color: #6c757d;
-            line-height: 1.6;
-            text-align: justify;
-            margin-bottom: 1.5rem;
+            line-height: 1.7;
+            margin-bottom: 2rem;
+            font-size: 0.95rem;
         }
 
         .btn-appointment {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #28a745, #20c997);
             border: none;
             border-radius: 25px;
-            padding: 0.6rem 2rem;
+            padding: 0.8rem 2.5rem;
             color: white;
+            font-weight: 600;
             transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .btn-appointment:hover {
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.3);
             color: white;
         }
 
-        .hero-section {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 50px;
+            height: 50px;
+            background: rgba(102, 126, 234, 0.9);
+            border-radius: 50%;
+            top: 50%;
+            transform: translateY(-50%);
+            margin: 0 20px;
+        }
+
+        .carousel-control-prev-icon,
+        .carousel-control-next-icon {
+            background-size: 1.2rem;
+        }
+
+        .badge-feature {
+            background: rgba(255,255,255,0.2);
             color: white;
-            border-radius: 15px;
+            padding: 0.6rem 1.2rem;
+            border-radius: 20px;
+            font-weight: 500;
+            margin: 0 0.5rem 0.5rem 0;
         }
 
         .lead-text {
-            line-height: 1.7;
-            font-size: 1.1rem;
-            text-align: center;
+            line-height: 1.8;
+            font-size: 1.2rem;
             max-width: 800px;
             margin: 0 auto;
+            opacity: 0.95;
         }
     </style>
 </head>
-<body>
+<body class="bg-light">
 
-<header class="p-3 text-bg-dark" style="display: flex; justify-content: flex-end">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
     <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"><a href="/"
-                                                                                                            class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-                <use xlink:href="#bootstrap"></use>
-            </svg>
-        </a>
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a href="#" class="nav-link px-2 text-secondary">Home</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
-                <li><a th:href="@{/main/about}" class="nav-link px-2 text-white">About</a></li>
-                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель
-                    администратора</a></li>
-                <li sec:authorize="hasAnyRole('ADMIN', 'USER')"><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-white">Найти врача для бронирования</a></li>
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a href="#" class="nav-link px-2 text-white">Главная</a></li>
+                <li><a th:href="@{/user/appointments}" class="nav-link px-2 text-secondary">Мои записи</a></li>
+                <li><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-secondary">Найти врача</a></li>
+                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-secondary">Панель администратора</a></li>
             </ul>
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search"><input type="search"
-                                                                                       class="form-control form-control-dark text-bg-dark"
-                                                                                       placeholder="Search..."
-                                                                                       aria-label="Search"></form>
-            <div>
-                <form th:method="POST" th:action="@{/logout}">
-                    <input type="submit" value="Logout" class="btn btn-warning">
+            <div class="text-end">
+                <span class="text-white me-3" sec:authentication="name"></span>
+                <form th:method="POST" th:action="@{/logout}" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </header>
 
-<div class="b-example-divider"></div>
-
-<div class="container my-5">
-    <div class="p-5 text-center hero-section">
-        <h1 class="display-5 fw-bold mb-4">Наша команда профессионалов</h1>
-        <p class="lead-text">
+<!-- Hero Section -->
+<main class="container my-5">
+    <div class="hero-section text-center">
+        <h1 class="display-4 fw-bold mb-4">Наша команда профессионалов</h1>
+        <p class="lead-text mb-4">
             Добро пожаловать в наш медицинский центр! Мы собрали команду лучших специалистов,
-            готовых предоставить вам качественную медицинскую помощь. Каждый наш врач обладает
-            многолетним опытом, регулярно повышает квалификацию и использует современные методы диагностики и лечения.
+            готовых предоставить вам качественную медицинскую помощь с индивидуальным подходом.
         </p>
         <div class="mt-4">
-            <span class="badge bg-light text-dark me-2 p-2">Высокий профессионализм</span>
-            <span class="badge bg-light text-dark me-2 p-2">Индивидуальный подход</span>
-            <span class="badge bg-light text-dark p-2">Современное оборудование</span>
+            <span class="badge-feature">Высокий профессионализм</span>
+            <span class="badge-feature">Индивидуальный подход</span>
+            <span class="badge-feature">Современное оборудование</span>
         </div>
     </div>
-</div>
 
-<div th:each="spec : ${T(ru.kursach.MedProject.enums.Specialization).values()}">
-    <div class="specialization-header">
-        <h1 class="display-6 fw-bold mb-3" th:text="${spec.getName()}"></h1>
-        <p class="mb-0 opacity-90" th:text="${spec.getDescription()}"></p>
-    </div>
+    <!-- Doctors by Specialization -->
+    <div th:each="spec : ${T(ru.kursach.MedProject.enums.Specialization).values()}">
+        <div class="specialization-header">
+            <h2 class="display-6 fw-bold mb-3" th:text="${spec.getName()}"></h2>
+            <p class="mb-0 opacity-90" th:text="${spec.getDescription()}"></p>
+        </div>
 
-    <div class="container marketing">
-        <div th:if="${doctors.containsKey(spec)}">
-            <div th:id="'carousel-' + ${spec.name()}" class="carousel slide" data-bs-ride="false">
-                <div class="carousel-inner">
-                    <div th:each="doctor, iter : ${doctors.get(spec)}"
-                         th:classappend="${iter.index == 0} ? 'carousel-item active' : 'carousel-item'">
-                        <div class="row justify-content-center">
-                            <div class="col-lg-6 col-md-8">
-                                <div class="doctor-card">
-                                    <div class="doctor-avatar">
-                                        <svg aria-label="Placeholder" class="bd-placeholder-img" height="60" width="60"
-                                             preserveAspectRatio="xMidYMid slice" role="img" xmlns="http://www.w3.org/2000/svg">
-                                            <rect width="100%" height="100%" fill="white"></rect>
-                                        </svg>
+        <div class="container">
+            <div th:if="${doctors.containsKey(spec)}">
+                <div th:id="'carousel-' + ${spec.name()}" class="carousel slide" data-bs-ride="false">
+                    <div class="carousel-inner">
+                        <div th:each="doctor, iter : ${doctors.get(spec)}"
+                             th:classappend="${iter.index == 0} ? 'carousel-item active' : 'carousel-item'">
+                            <div class="row justify-content-center">
+                                <div class="col-lg-8 col-md-10">
+                                    <div class="doctor-card">
+                                        <div class="doctor-avatar">
+                                            <i class="fas fa-user-md"></i>
+                                        </div>
+                                        <h3 class="doctor-name"
+                                            th:text="${doctor.lastName + ' ' + doctor.firstName + ' ' + doctor.middleName}">
+                                        </h3>
+                                        <p class="doctor-bio" th:text="${doctor.bio}"></p>
+                                        <a class="btn btn-appointment"
+                                           th:href="@{/user/bookDoctor/{doctor_id}(doctor_id=${doctor.id})}">
+                                            <i class="fas fa-calendar-plus me-2"></i>Записаться на прием
+                                        </a>
                                     </div>
-                                    <h2 class="doctor-name" th:text="${doctor.getLastName() + ' ' + doctor.getFirstName() + ' ' + doctor.getMiddleName()}">ФИО</h2>
-                                    <p class="doctor-bio" th:text="${doctor.getBio()}"></p>
-                                    <p><a class="btn btn-appointment" href="#">Записаться на прием »</a></p>
                                 </div>
-
                             </div>
                         </div>
                     </div>
+
+                    <!-- Carousel Controls -->
+                    <button th:if="${doctors.get(spec).size() > 1}"
+                            class="carousel-control-prev" type="button"
+                            th:attr="data-bs-target='#carousel-' + ${spec.name()}" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Предыдущий</span>
+                    </button>
+                    <button th:if="${doctors.get(spec).size() > 1}"
+                            class="carousel-control-next" type="button"
+                            th:attr="data-bs-target='#carousel-' + ${spec.name()}" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Следующий</span>
+                    </button>
                 </div>
-
-                <!-- Кнопки управления -->
-                <button th:if="${doctors.get(spec).size() > 1}"
-                        class="carousel-control-prev" type="button"
-                        th:attr="data-bs-target='#carousel-' + ${spec.name()}" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button th:if="${doctors.get(spec).size() > 1}"
-                        class="carousel-control-next" type="button"
-                        th:attr="data-bs-target='#carousel-' + ${spec.name()}" data-bs-slide="next">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
             </div>
-        </div>
 
-        <!-- Сообщение если нет врачей в специализации -->
-        <div th:unless="${doctors.containsKey(spec)}" class="text-center py-5">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle me-2"></i>
-                В данной специализации врачи временно отсутствуют
+            <!-- No Doctors Message -->
+            <div th:unless="${doctors.containsKey(spec)}" class="text-center py-5">
+                <div class="alert alert-info border-0 shadow-sm">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Врачи данной специализации временно отсутствуют
+                </div>
             </div>
         </div>
     </div>
-</div>
-<footer class="py-3 my-4">
-    <ul class="nav justify-content-center border-bottom pb-3 mb-3">
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Home</a></li>
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Features</a></li>
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">Pricing</a></li>
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">FAQs</a></li>
-        <li class="nav-item"><a href="#" class="nav-link px-2 text-body-secondary">About</a></li>
-    </ul>
-    <p class="text-center text-body-secondary">© 2025 Medical Center, Inc</p>
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

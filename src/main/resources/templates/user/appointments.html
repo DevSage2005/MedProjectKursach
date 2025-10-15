@@ -130,13 +130,13 @@
 <header class="p-3 text-bg-dark">
     <div class="container">
         <div class="d-flex flex-wrap align-items-center justify-content-between">
-            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+            <a th:href="@{/main/index}" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
                 <i class="fas fa-heartbeat fa-2x me-2"></i>
                 <span class="fs-4">Медицинский проект</span>
             </a>
             <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
-                <li><a th:href="@{/user/bookAppointment}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-white">Запись к врачу</a></li>
                 <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
             </ul>
             <div class="text-end">
@@ -310,9 +310,11 @@
                                       class="badge bg-danger status-badge mb-2">Отменено</span>
 
                                 <div class="btn-group-vertical w-100">
+                                    <a th:href="@{/user/aboutDoctor/{id}(id=${appointment.doctor.id})}">
                                     <button class="btn btn-outline-primary btn-sm mb-1">
                                         <i class="fas fa-eye me-1"></i>Подробнее
                                     </button>
+                                    </a>
                                     <form th:if="${appointment.status.name() == 'SCHEDULED'}"
                                           th:action="@{/user/appointments/cancel/{id}(id=${appointment.id})}"
                                           th:method="POST"

@@ -1,283 +1,407 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>О проекте</title>
+    <title>Панель администратора - Медицинский проект</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .user-card {
+            border-left: 4px solid #667eea;
+            transition: transform 0.2s;
+            margin-bottom: 1rem;
+        }
+        .user-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .admin-card {
+            border-left-color: #dc3545;
+        }
+        .user-role-card {
+            border-left-color: #28a745;
+        }
+        .doctor-card {
+            border-left-color: #007bff;
+        }
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .role-badge {
+            font-size: 0.8rem;
+        }
+        .sidebar {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .sidebar-menu {
+            border: none;
+            background: transparent;
+            color: #495057;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+            width: 100%;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+        .sidebar-menu:hover {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            border-radius: 8px;
+        }
+        .sidebar-menu[aria-expanded="true"] {
+            background: rgba(102, 126, 234, 0.15);
+            color: #667eea;
+            border-radius: 8px;
+        }
+        .section-header {
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .stats-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        .form-select-sm {
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        .form-select-sm:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-primary-sm {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 8px;
+            padding: 0.4rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+        .btn-primary-sm:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+    </style>
 </head>
-<body class="bg-body-tertiary">
-<header class="p-3 text-bg-dark" style="display: flex; justify-content: flex-end">
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
     <div class="container">
-        <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start"><a href="/"
-                                                                                                            class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-            <svg class="bi me-2" width="40" height="32" role="img" aria-label="Bootstrap">
-                <use xlink:href="#bootstrap"></use>
-            </svg>
-        </a>
-            <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-                <li><a th:href="@{/main/index}"  class="nav-link px-2 text-secondary">Home</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Features</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">Pricing</a></li>
-                <li><a href="#" class="nav-link px-2 text-white">FAQs</a></li>
-                <li><a th:href="@{/main/about}" class="nav-link px-2 text-white">About</a></li>
-                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель
-                    администратора</a></li>
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/user/bookAppointment}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
             </ul>
-            <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search"><input type="search"
-                                                                                       class="form-control form-control-dark text-bg-dark"
-                                                                                       placeholder="Search..."
-                                                                                       aria-label="Search"></form>
-            <div>
-                <form th:method="POST" th:action="@{/logout}">
-                    <input type="submit" value="Logout" class="btn btn-warning">
+            <div class="text-end">
+                <span class="text-white me-3" sec:authentication="name"></span>
+                <form th:method="POST" th:action="@{/logout}" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
                 </form>
             </div>
         </div>
     </div>
 </header>
 
-<main class="container">
+<main class="container my-5">
+    <!-- Заголовок страницы -->
+    <div class="admin-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-cogs me-3"></i>Панель администратора
+                </h1>
+                <p class="lead mb-0">Управление пользователями и настройками системы</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="stats-card" >
+                            <div class="stats-number" th:text="${adminCount}">0</div>
+                            <small>Администраторы</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <div class="stats-number" th:text="${doctorCount}">0</div>
+                            <small>Врачи</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <div class="stats-number" th:text="${userCount}">0</div>
+                            <small>Пользователи</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
         <!-- Основной контент слева -->
-        <div class="col-md-9">
-            <div class="my-3 p-3 bg-body rounded shadow-sm">
-                <h6 class="border-bottom pb-2 mb-0">Администраторы</h6>
-
-                <div class="d-flex text-body-secondary pt-3"
-                     th:each="user : ${users}"
-                     th:if="${user.isAdmin()}">
-
-                    <div class="flex-shrink-0 me-3">
-                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white"
-                             style="width: 48px; height: 48px;">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="flex-grow-1 border-bottom pb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <strong class="d-block text-gray-dark fs-6" th:text="${user.getEmail()}">@username</strong>
-                                <div class="text-muted small mt-1">
-                                    Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
-                                </div>
-                                <div class="text-muted small">
-                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getRole().getTranslation()}"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <form th:action="@{/adminPage/setRole/{id}(id=${user.getId()})}" method="POST" class="mt-2">
-                            <div class="row g-2 align-items-center">
-                                <div class="col-auto">
-                                    <label for="roleAd" class="form-label small mb-0">Назначить роль:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select id="roleAd" name="newRole" class="form-select form-select-sm" style="width: 160px;">
-                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
-                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
-                                        </option>
-                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
-                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary btn-sm px-3">
-                                        Назначить
-                                    </button>
+        <div class="col-lg-9">
+            <!-- Администраторы -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-danger text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-shield me-2"></i>Администраторы</h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="user : ${users}" th:if="${user.isAdmin()}">
+                        <div class="card user-card admin-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user-shield"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <h6 class="card-title mb-1" th:text="${user.email}"></h6>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-birthday-cake me-1"></i>
+                                            <span th:if="${user.dateOfBirth != null}" th:text="${#dates.format(user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                                            <span th:unless="${user.dateOfBirth != null}">Дата не указана</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-danger role-badge p-2">
+                                            <i class="fas fa-crown me-1"></i>
+                                            <span th:text="${user.role.getTranslation()}"></span>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
+                                            <div class="input-group input-group-sm">
+                                                <select name="newRole" class="form-select form-select-sm">
+                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
+                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
+                                                    </option>
+                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
+                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
+                                                    </option>
+                                                </select>
+                                                <button type="submit" class="btn btn-primary-sm">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="my-3 p-3 bg-body rounded shadow-sm">
-                <h6 class="border-bottom pb-2 mb-0">Пользователи</h6>
-
-                <div class="d-flex text-body-secondary pt-3"
-                     th:each="user : ${users}"
-                     th:if="${user.isSimpleUser()}">
-
-                    <div class="flex-shrink-0 me-3">
-                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white"
-                             style="width: 48px; height: 48px;">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="flex-grow-1 border-bottom pb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <strong class="d-block text-gray-dark fs-6" th:text="${user.getEmail()}">@username</strong>
-                                <div class="text-muted small mt-1">
-                                    Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
-                                </div>
-                                <div class="text-muted small">
-                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getRole().getTranslation()}"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <form th:action="@{/adminPage/setRole/{id}(id=${user.getId()})}" method="POST" class="mt-2">
-                            <div class="row g-2 align-items-center">
-                                <div class="col-auto">
-                                    <label for="role" class="form-label small mb-0">Назначить роль:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select id="role" name="newRole" class="form-select form-select-sm" style="width: 160px;">
-                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
-                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
-                                        </option>
-                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
-                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary btn-sm px-3">
-                                        Назначить
-                                    </button>
+            <!-- Пользователи -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Пользователи</h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="user : ${users}" th:if="${user.isSimpleUser()}">
+                        <div class="card user-card user-role-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <h6 class="card-title mb-1" th:text="${user.email}"></h6>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-birthday-cake me-1"></i>
+                                            <span th:if="${user.dateOfBirth != null}" th:text="${#dates.format(user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                                            <span th:unless="${user.dateOfBirth != null}">Дата не указана</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-success role-badge p-2">
+                                            <i class="fas fa-user me-1"></i>
+                                            <span th:text="${user.role.getTranslation()}"></span>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
+                                            <div class="input-group input-group-sm">
+                                                <select name="newRole" class="form-select form-select-sm">
+                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
+                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
+                                                    </option>
+                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
+                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
+                                                    </option>
+                                                </select>
+                                                <button type="submit" class="btn btn-primary-sm">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
-                        </form>
-
-
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="my-3 p-3 bg-body rounded shadow-sm">
-                <h6 class="border-bottom pb-2 mb-0">Доктора</h6>
-
-                <div class="d-flex text-body-secondary pt-3"
-                     th:each="user : ${users}"
-                     th:if="${user.isDoctor()}">
-
-                    <div class="flex-shrink-0 me-3">
-                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center text-white"
-                             style="width: 48px; height: 48px;">
-                            <svg width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                            </svg>
-                        </div>
-                    </div>
-
-                    <div class="flex-grow-1 border-bottom pb-3">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <div>
-                                <strong class="d-block text-gray-dark fs-6" th:text="${user.getEmail()}">@username</strong>
-                                <div class="text-muted small mt-1">
-                                    Дата рождения: <span th:text="${user.getDateOfBirth()}"></span>
-                                </div>
-                                <div class="text-muted small">
-                                    Права: <span class="badge bg-light text-dark border" th:text="${user.getRole().getTranslation()}"></span>
+            <!-- Доктора -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Врачи</h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="user : ${users}" th:if="${user.isDoctor()}">
+                        <div class="card user-card doctor-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user-md"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <h6 class="card-title mb-1" th:text="${user.email}"></h6>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-birthday-cake me-1"></i>
+                                            <span th:if="${user.dateOfBirth != null}" th:text="${#dates.format(user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                                            <span th:unless="${user.dateOfBirth != null}">Дата не указана</span>
+                                        </div>
+                                        <div class="text-muted small" th:if="${user.specialization != null}">
+                                            <i class="fas fa-stethoscope me-1"></i>
+                                            <span th:text="${user.specialization.getName()}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-primary role-badge p-2">
+                                            <i class="fas fa-user-md me-1"></i>
+                                            <span th:text="${user.role.getTranslation()}"></span>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
+                                            <div class="input-group input-group-sm">
+                                                <select name="newRole" class="form-select form-select-sm">
+                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
+                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
+                                                    </option>
+                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
+                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
+                                                    </option>
+                                                </select>
+                                                <button type="submit" class="btn btn-primary-sm">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-
-                        <form th:action="@{/adminPage/setRole/{id}(id=${user.getId()})}" method="POST" class="mt-2">
-                            <div class="row g-2 align-items-center">
-                                <div class="col-auto">
-                                    <label for="roleDoc" class="form-label small mb-0">Назначить роль:</label>
-                                </div>
-                                <div class="col-auto">
-                                    <select id="roleDoc" name="newRole" class="form-select form-select-sm"
-                                            style="width: 160px;">
-                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
-                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
-                                        </option>
-                                        <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
-                                                th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="col-auto">
-                                    <button type="submit" class="btn btn-primary btn-sm px-3">
-                                        Назначить
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-
-
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Боковая панель справа -->
-        <div class="col-md-3">
-            <div class="flex-shrink-0 p-3 bg-body rounded shadow-sm" style="width: 100%;">
-                <a href="/" class="d-flex align-items-center pb-3 mb-3 link-body-emphasis text-decoration-none border-bottom">
-                    <svg class="bi pe-none me-2" width="30" height="24" aria-hidden="true">
-                        <use xlink:href="#bootstrap"></use>
-                    </svg>
-                    <span class="fs-5 fw-semibold">Меню</span>
-                </a>
-                <ul class="list-unstyled ps-0">
-                    <li class="mb-1">
-                        <div class="collapse show" id="home-collapse">
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a th:href="@{/adminPage/addDoctor}" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Добавить доктора в систему</a></li>
-<!--                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Updates</a></li>-->
-<!--                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Reports</a></li>-->
-                            </ul>
+        <div class="col-lg-3">
+            <div class="sidebar p-4">
+                <h5 class="section-header">
+                    <i class="fas fa-bars me-2"></i>Меню администратора
+                </h5>
+
+                <div class="d-grid gap-2">
+                    <a th:href="@{/adminPage/addDoctor}" class="btn btn-primary">
+                        <i class="fas fa-user-plus me-2"></i>Добавить врача
+                    </a>
+                </div>
+
+                <div class="mt-4">
+                    <button class="sidebar-menu" data-bs-toggle="collapse" data-bs-target="#users-collapse">
+                        <i class="fas fa-users me-2"></i>Управление пользователями
+                    </button>
+                    <div class="collapse show" id="users-collapse">
+                        <div class="ps-4 small">
+                            <div class="py-1"><i class="fas fa-circle text-danger me-1"></i> Администраторы</div>
+                            <div class="py-1"><i class="fas fa-circle text-success me-1"></i> Пользователи</div>
+                            <div class="py-1"><i class="fas fa-circle text-primary me-1"></i> Врачи</div>
                         </div>
-                    </li>
-                    <li class="mb-1">
-                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                                data-bs-toggle="collapse" data-bs-target="#dashboard-collapse" aria-expanded="false">
-                            Dashboard
-                        </button>
-                        <div class="collapse" id="dashboard-collapse">
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Overview</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Weekly</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Monthly</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Annually</a></li>
-                            </ul>
+                    </div>
+
+                    <button class="sidebar-menu mt-2" data-bs-toggle="collapse" data-bs-target="#system-collapse">
+                        <i class="fas fa-cog me-2"></i>Системные настройки
+                    </button>
+                    <div class="collapse" id="system-collapse">
+                        <div class="ps-4 small">
+                            <div class="py-1"><a href="#" class="text-decoration-none">Настройки безопасности</a></div>
+                            <div class="py-1"><a href="#" class="text-decoration-none">Резервное копирование</a></div>
+                            <div class="py-1"><a href="#" class="text-decoration-none">Логи системы</a></div>
                         </div>
-                    </li>
-                    <li class="mb-1">
-                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                                data-bs-toggle="collapse" data-bs-target="#orders-collapse" aria-expanded="false">
-                            Orders
-                        </button>
-                        <div class="collapse" id="orders-collapse">
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Processed</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Shipped</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Returned</a></li>
-                            </ul>
+                    </div>
+
+                    <button class="sidebar-menu mt-2" data-bs-toggle="collapse" data-bs-target="#reports-collapse">
+                        <i class="fas fa-chart-bar me-2"></i>Отчеты
+                    </button>
+                    <div class="collapse" id="reports-collapse">
+                        <div class="ps-4 small">
+                            <div class="py-1"><a href="#" class="text-decoration-none">Статистика записей</a></div>
+                            <div class="py-1"><a href="#" class="text-decoration-none">Финансовые отчеты</a></div>
+                            <div class="py-1"><a href="#" class="text-decoration-none">Активность пользователей</a></div>
                         </div>
-                    </li>
-                    <li class="border-top my-3"></li>
-                    <li class="mb-1">
-                        <button class="btn btn-toggle d-inline-flex align-items-center rounded border-0 collapsed"
-                                data-bs-toggle="collapse" data-bs-target="#account-collapse" aria-expanded="false">
-                            Account
-                        </button>
-                        <div class="collapse" id="account-collapse">
-                            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">New...</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Profile</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Settings</a></li>
-                                <li><a href="#" class="link-body-emphasis d-inline-flex text-decoration-none rounded">Sign out</a></li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

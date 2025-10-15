@@ -121,6 +121,15 @@ public class UserController {
         return "user/appointments";
     }
 
+
+    @GetMapping("/aboutDoctor/{id}")
+    public String showDoctor(@PathVariable("id") int id, Model model){
+        model.addAttribute("doctor",userRepository.findUserById(id));
+        return "user/aboutDoctor";
+    }
+
+
+
     @PostMapping("/appointments/cancel/{id}")
     public String cancelAppointment(@PathVariable("id") int id) {
         Appointment appointment = appointmentRepository.findById(id).orElse(null);

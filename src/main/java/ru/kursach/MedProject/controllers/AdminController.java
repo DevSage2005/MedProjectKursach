@@ -14,6 +14,7 @@ import ru.kursach.MedProject.models.DoctorScheduleWorkingHours;
 import ru.kursach.MedProject.models.Schedule;
 import ru.kursach.MedProject.models.User;
 import ru.kursach.MedProject.models.WorkingHours;
+import ru.kursach.MedProject.repositories.UserRepository;
 import ru.kursach.MedProject.services.AdminService;
 import ru.kursach.MedProject.services.UserService;
 import ru.kursach.MedProject.validators.DoctorScheduleWorkingHoursValidator;
@@ -32,12 +33,14 @@ public class AdminController {
     private final AdminService adminService;
     private final UserService userService;
     private final DoctorScheduleWorkingHoursValidator validator;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AdminController(AdminService adminService, UserService userService, DoctorScheduleWorkingHoursValidator validator) {
+    public AdminController(AdminService adminService, UserService userService, DoctorScheduleWorkingHoursValidator validator, UserRepository userRepository) {
         this.adminService = adminService;
         this.userService = userService;
         this.validator = validator;
+        this.userRepository=userRepository;
     }
 
     @GetMapping()
@@ -46,6 +49,15 @@ public class AdminController {
         List<Roles> roles = new ArrayList<>(List.of(Roles.ROLE_ADMIN,Roles.ROLE_USER,Roles.ROLE_DOCTOR));
         model.addAttribute("userRoles", roles);
         model.addAttribute("users", users);
+
+        long doctors = users.stream().filter(user -> user.getRole()==Roles.ROLE_DOCTOR).count();
+        long simpleUsers = users.stream().filter(user -> user.getRole()==Roles.ROLE_USER).count();
+        long admins = users.stream().filter(user -> user.getRole()==Roles.ROLE_ADMIN).count();
+
+        model.addAttribute("adminCount", admins);
+        model.addAttribute("doctorCount", doctors);
+        model.addAttribute("userCount", simpleUsers);
+
         return "user/admin";
     }
 

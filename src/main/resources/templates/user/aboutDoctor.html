@@ -84,7 +84,7 @@
             </a>
             <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
-                <li><a th:href="@{/user/bookAppointment}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-white">Запись к врачу</a></li>
                 <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
             </ul>
             <div class="text-end">

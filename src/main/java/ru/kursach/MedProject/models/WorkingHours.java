@@ -97,6 +97,8 @@ public class WorkingHours {
         return breakEnd;
     }
 
+
+
     public void setBreakEnd(LocalTime breakEnd) {
         this.breakEnd = breakEnd;
     }

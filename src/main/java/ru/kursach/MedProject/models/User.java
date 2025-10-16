@@ -75,7 +75,7 @@ public class User {
     @Column(name="password")
     private String password;
 
-    @OneToOne(mappedBy = "doctor")
+    @OneToOne(mappedBy = "doctor", cascade = CascadeType.ALL)
     private Schedule schedule;
 
 

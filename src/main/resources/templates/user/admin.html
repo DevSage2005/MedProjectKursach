@@ -57,6 +57,8 @@
             width: 100%;
             text-align: left;
             transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
         }
         .sidebar-menu:hover {
             background: rgba(102, 126, 234, 0.1);
@@ -106,6 +108,67 @@
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
+        .btn-admin-action {
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        .btn-admin-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .quick-stats {
+            background: rgba(255,255,255,0.5);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+        }
+        .stat-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+        }
+        .stat-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        .user-role-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid #f8f9fa;
+        }
+        .user-role-item:last-child {
+            border-bottom: none;
+        }
+        .transition-icon {
+            transition: transform 0.3s ease;
+        }
+        .sidebar-menu[aria-expanded="true"] .transition-icon {
+            transform: rotate(180deg);
+        }
+        .sidebar-menu-section {
+            border-top: 1px solid #e9ecef;
+            padding-top: 1rem;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -119,7 +182,7 @@
             </a>
             <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
                 <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
-                <li><a th:href="@{/user/bookAppointment}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-white">Запись к врачу</a></li>
                 <li><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
             </ul>
             <div class="text-end">
@@ -143,28 +206,6 @@
                     <i class="fas fa-cogs me-3"></i>Панель администратора
                 </h1>
                 <p class="lead mb-0">Управление пользователями и настройками системы</p>
-            </div>
-            <div class="col-md-4 text-md-end">
-                <div class="row g-2">
-                    <div class="col-6">
-                        <div class="stats-card" >
-                            <div class="stats-number" th:text="${adminCount}">0</div>
-                            <small>Администраторы</small>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stats-card">
-                            <div class="stats-number" th:text="${doctorCount}">0</div>
-                            <small>Врачи</small>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="stats-card">
-                            <div class="stats-number" th:text="${userCount}">0</div>
-                            <small>Пользователи</small>
-                        </div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -343,43 +384,144 @@
                     <i class="fas fa-bars me-2"></i>Меню администратора
                 </h5>
 
-                <div class="d-grid gap-2">
-                    <a th:href="@{/adminPage/addDoctor}" class="btn btn-primary">
-                        <i class="fas fa-user-plus me-2"></i>Добавить врача
-                    </a>
+                <!-- Основные действия -->
+                <div class="admin-actions mb-4">
+                    <div class="d-grid gap-3">
+                        <a th:href="@{/adminPage/addDoctor}" class="btn btn-primary btn-admin-action">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Добавить врача</span>
+                        </a>
+                        <a th:href="@{/adminPage/searchForEdit}" class="btn btn-warning btn-admin-action">
+                            <i class="fas fa-edit"></i>
+                            <span>Редактировать врачей</span>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="mt-4">
-                    <button class="sidebar-menu" data-bs-toggle="collapse" data-bs-target="#users-collapse">
+                <!-- Быстрая статистика -->
+                <div class="quick-stats">
+                    <h6 class="text-uppercase fw-bold text-muted mb-3 small">
+                        <i class="fas fa-chart-line me-1"></i>Статистика
+                    </h6>
+                    <div class="stats-grid">
+                        <div class="stat-item text-center">
+                            <div class="stat-number text-danger fw-bold" th:text="${adminCount}">0</div>
+                            <div class="stat-label small text-muted">Админы</div>
+                        </div>
+                        <div class="stat-item text-center">
+                            <div class="stat-number text-primary fw-bold" th:text="${doctorCount}">0</div>
+                            <div class="stat-label small text-muted">Врачи</div>
+                        </div>
+                        <div class="stat-item text-center">
+                            <div class="stat-number text-success fw-bold" th:text="${userCount}">0</div>
+                            <div class="stat-label small text-muted">Пользователи</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-menu-section">
+                    <button class="sidebar-menu active" data-bs-toggle="collapse" data-bs-target="#users-collapse">
                         <i class="fas fa-users me-2"></i>Управление пользователями
+                        <i class="fas fa-chevron-down ms-auto transition-icon"></i>
                     </button>
                     <div class="collapse show" id="users-collapse">
                         <div class="ps-4 small">
-                            <div class="py-1"><i class="fas fa-circle text-danger me-1"></i> Администраторы</div>
-                            <div class="py-1"><i class="fas fa-circle text-success me-1"></i> Пользователи</div>
-                            <div class="py-1"><i class="fas fa-circle text-primary me-1"></i> Врачи</div>
+                            <div class="py-2 user-role-item">
+                                <i class="fas fa-user-shield text-danger me-2"></i>
+                                <span>Администраторы</span>
+                                <span class="badge bg-danger ms-1" th:text="${adminCount}">0</span>
+                            </div>
+                            <div class="py-2 user-role-item">
+                                <i class="fas fa-user-md text-primary me-2"></i>
+                                <span>Врачи</span>
+                                <span class="badge bg-primary ms-1" th:text="${doctorCount}">0</span>
+                            </div>
+                            <div class="py-2 user-role-item">
+                                <i class="fas fa-user text-success me-2"></i>
+                                <span>Пользователи</span>
+                                <span class="badge bg-success ms-1" th:text="${userCount}">0</span>
+                            </div>
                         </div>
                     </div>
 
-                    <button class="sidebar-menu mt-2" data-bs-toggle="collapse" data-bs-target="#system-collapse">
+                    <button class="sidebar-menu mt-3" data-bs-toggle="collapse" data-bs-target="#doctors-collapse">
+                        <i class="fas fa-stethoscope me-2"></i>Управление врачами
+                        <i class="fas fa-chevron-down ms-auto transition-icon"></i>
+                    </button>
+                    <div class="collapse" id="doctors-collapse">
+                        <div class="ps-4 small">
+                            <div class="py-2">
+                                <a th:href="@{/adminPage/addDoctor}" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-plus-circle text-success me-2"></i>
+                                    <span>Добавить врача</span>
+                                </a>
+                            </div>
+                            <div class="py-2">
+                                <a th:href="@{/adminPage/searchForEdit}" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-edit text-warning me-2"></i>
+                                    <span>Редактировать врачей</span>
+                                </a>
+                            </div>
+                            <div class="py-2">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-calendar-alt text-info me-2"></i>
+                                    <span>Расписания</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="sidebar-menu mt-3" data-bs-toggle="collapse" data-bs-target="#system-collapse">
                         <i class="fas fa-cog me-2"></i>Системные настройки
+                        <i class="fas fa-chevron-down ms-auto transition-icon"></i>
                     </button>
                     <div class="collapse" id="system-collapse">
                         <div class="ps-4 small">
-                            <div class="py-1"><a href="#" class="text-decoration-none">Настройки безопасности</a></div>
-                            <div class="py-1"><a href="#" class="text-decoration-none">Резервное копирование</a></div>
-                            <div class="py-1"><a href="#" class="text-decoration-none">Логи системы</a></div>
+                            <div class="py-2">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-shield-alt text-primary me-2"></i>
+                                    <span>Настройки безопасности</span>
+                                </a>
+                            </div>
+                            <div class="py-2">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-database text-info me-2"></i>
+                                    <span>Резервное копирование</span>
+                                </a>
+                            </div>
+                            <div class="py-2">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-file-alt text-secondary me-2"></i>
+                                    <span>Логи системы</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
 
-                    <button class="sidebar-menu mt-2" data-bs-toggle="collapse" data-bs-target="#reports-collapse">
-                        <i class="fas fa-chart-bar me-2"></i>Отчеты
+                    <button class="sidebar-menu mt-3" data-bs-toggle="collapse" data-bs-target="#reports-collapse">
+                        <i class="fas fa-chart-bar me-2"></i>Отчеты и аналитика
+                        <i class="fas fa-chevron-down ms-auto transition-icon"></i>
                     </button>
                     <div class="collapse" id="reports-collapse">
                         <div class="ps-4 small">
-                            <div class="py-1"><a href="#" class="text-decoration-none">Статистика записей</a></div>
-                            <div class="py-1"><a href="#" class="text-decoration-none">Финансовые отчеты</a></div>
-                            <div class="py-1"><a href="#" class="text-decoration-none">Активность пользователей</a></div>
+                            <div class="py-2">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-calendar-check text-success me-2"></i>
+                                    <span>Статистика записей</span>
+                                </a>
+                            </div>
+                            <div class="py-2">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-chart-line text-warning me-2"></i>
+                                    <span>Финансовые отчеты</span>
+                                </a>
+                            </div>
+                            <div class="py-2">
+                                <a href="#" class="text-decoration-none d-flex align-items-center">
+                                    <i class="fas fa-user-clock text-info me-2"></i>
+                                    <span>Активность пользователей</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>

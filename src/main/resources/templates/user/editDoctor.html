@@ -1,10 +1,463 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Редактировать врача - Медицинский проект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .form-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        .form-header {
+            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+        .form-section {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .form-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .form-control, .form-select {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #ffb300 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 193, 7, 0.3);
+            color: white;
+        }
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #868e96 100%);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        }
+        .working-hours-section {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid #2196f3;
+        }
+        .char-counter {
+            font-weight: 600;
+        }
+        .phone-input {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border: 2px solid #ffc107;
+        }
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
+        .form-check-input:checked {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .section-title {
+            color: #495057;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+        .time-input-group {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #e9ecef;
+        }
+        .day-title {
+            color: #495057;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+    </style>
 </head>
-<body>
-$END$
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/user/bookAppointment}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li><a th:href="@{/adminPage}" class="nav-link px-2 text-white">Панель администратора</a></li>
+            </ul>
+            <div class="text-end">
+                <span class="text-white me-3" sec:authentication="name"></span>
+                <form th:method="POST" th:action="@{/logout}" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <!-- Заголовок страницы -->
+    <div class="admin-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-edit me-3"></i>Редактировать врача
+                </h1>
+                <p class="lead mb-0">Обновите информацию о медицинском специалисте</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card form-card">
+                <div class="form-header">
+                    <h4 class="mb-0"><i class="fas fa-user-edit me-2"></i>Редактирование данных врача</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form th:action="@{/adminPage/editDoctor/{id}(id=${form.user.id})}" th:method="post" th:object="${form}" class="needs-validation" novalidate>
+
+                        <input type="hidden" th:field="*{user.password}">
+                        <input type="hidden" th:field="*{user.role}">
+                        <input type="hidden" th:field="*{user.createdAt}">
+                        <input type="hidden" th:field="*{user.lastLoginAt}">
+                        <input type="hidden" th:field="*{user.id}">
+                        <input type="hidden" th:field="*{user.appointment}">
+
+                        <input type="hidden" th:field="*{schedule.id}">
+                        <div th:each="workHour, stat : ${form.workingHours}">
+                            <input type="hidden" th:field="*{workingHours[__${stat.index}__].id}">
+                        </div>
+
+                        <div class="form-section">
+                            <h5 class="section-title"><i class="fas fa-user me-2"></i>Основная информация</h5>
+                            <div class="row g-3">
+
+                                <!-- Имя -->
+                                <div class="col-sm-6">
+                                    <label for="firstName" class="form-label required-field">Имя</label>
+                                    <input type="text" class="form-control" id="firstName" th:field="*{user.firstName}" placeholder="Иван" required>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.firstName')}" th:errors="*{user.firstName}"></div>
+                                </div>
+
+                                <!-- Фамилия -->
+                                <div class="col-sm-6">
+                                    <label for="lastName" class="form-label required-field">Фамилия</label>
+                                    <input type="text" class="form-control" id="lastName" th:field="*{user.lastName}" placeholder="Петров" required>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.lastName')}" th:errors="*{user.lastName}"></div>
+                                </div>
+
+                                <!-- Отчество -->
+                                <div class="col-12">
+                                    <label for="middleName" class="form-label">Отчество</label>
+                                    <input type="text" class="form-control" id="middleName" th:field="*{user.middleName}" placeholder="Сергеевич">
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.middleName')}" th:errors="*{user.middleName}"></div>
+                                </div>
+
+                                <!-- Email -->
+                                <div class="col-12">
+                                    <label for="email" class="form-label required-field">Email</label>
+                                    <input type="email" class="form-control" id="email" th:field="*{user.email}" placeholder="doctor@hospital.com" required>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.email')}" th:errors="*{user.email}"></div>
+                                </div>
+
+                                <!-- Телефон с маской -->
+                                <div class="col-12">
+                                    <label for="phone" class="form-label required-field">Телефон</label>
+                                    <input type="text" class="form-control phone-input" id="phone" th:field="*{user.phone}" placeholder="+375 (29) 123-45-67" required oninput="formatPhoneFull(this)">
+                                    <small class="form-text text-muted">Формат: +375 (29) 123-45-67</small>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.phone')}" th:errors="*{user.phone}"></div>
+                                </div>
+
+                                <!-- Дата рождения -->
+                                <div class="col-md-6">
+                                    <label for="dateOfBirth" class="form-label required-field">Дата рождения</label>
+                                    <input type="date" class="form-control" id="dateOfBirth" th:field="*{user.dateOfBirth}" required>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.dateOfBirth')}" th:errors="*{user.dateOfBirth}"></div>
+                                </div>
+
+                                <!-- Пол -->
+                                <div class="col-md-6">
+                                    <label for="gender" class="form-label required-field">Пол</label>
+                                    <select class="form-select" id="gender" th:field="*{user.gender}" required>
+                                        <option value="">Выберите...</option>
+                                        <option th:each="gender : ${T(ru.kursach.MedProject.enums.Gender).values()}" th:value="${gender}" th:text="${gender.getTranslation()}"></option>
+                                    </select>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.gender')}" th:errors="*{user.gender}"></div>
+                                </div>
+
+                                <!-- Адрес -->
+                                <div class="col-12">
+                                    <label for="address" class="form-label">Адрес</label>
+                                    <input type="text" class="form-control" id="address" th:field="*{user.address}" placeholder="г. Минск, ул. Примерная, 123">
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.address')}" th:errors="*{user.address}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Профессиональная информация -->
+                        <div class="form-section">
+                            <h5 class="section-title"><i class="fas fa-stethoscope me-2"></i>Профессиональная информация</h5>
+                            <div class="row g-3">
+
+                                <!-- Медицинская лицензия -->
+                                <div class="col-md-6">
+                                    <label for="medicalLicenseNumber" class="form-label required-field">Номер медицинской лицензии</label>
+                                    <input type="text" class="form-control" id="medicalLicenseNumber" th:field="*{user.medicalLicenseNumber}" placeholder="MED-123456" required>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.medicalLicenseNumber')}" th:errors="*{user.medicalLicenseNumber}"></div>
+                                </div>
+
+                                <!-- Специализация -->
+                                <div class="col-md-6">
+                                    <label for="specialization" class="form-label required-field">Специализация</label>
+                                    <select class="form-select" id="specialization" th:field="*{user.specialization}" required>
+                                        <option value="">Выберите специализацию...</option>
+                                        <option th:each="spec : ${T(ru.kursach.MedProject.enums.Specialization).values()}" th:value="${spec}" th:text="${spec.getName()} + ' - ' + ${spec.getDescription()}"></option>
+                                    </select>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.specialization')}" th:errors="*{user.specialization}"></div>
+                                </div>
+
+                                <!-- Стаж работы -->
+                                <div class="col-md-6">
+                                    <label for="experienceYears" class="form-label required-field">Стаж работы (лет)</label>
+                                    <input type="number" class="form-control" id="experienceYears" th:field="*{user.experienceYears}" placeholder="5" min="0" max="50" required>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.experienceYears')}" th:errors="*{user.experienceYears}"></div>
+                                </div>
+
+                                <!-- Образование -->
+                                <div class="col-md-6">
+                                    <label for="education" class="form-label required-field">Образование</label>
+                                    <input type="text" class="form-control" id="education" th:field="*{user.education}" placeholder="БГМУ, лечебный факультет" required>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.education')}" th:errors="*{user.education}"></div>
+                                </div>
+
+                                <!-- Биография с счетчиком символов -->
+                                <div class="col-12">
+                                    <label for="bio" class="form-label">Биография / Описание специалиста</label>
+                                    <textarea class="form-control" id="bio" th:field="*{user.bio}" placeholder="Опытный специалист с многолетним стажем работы..." rows="4" maxlength="1000" oninput="updateCharCounter(this)"></textarea>
+                                    <div class="d-flex justify-content-between align-items-center mt-1">
+                                        <small class="form-text text-muted">Краткое описание специалиста для пациентов</small>
+                                        <small class="form-text text-muted"><span id="charCount" class="char-counter" th:text="${#strings.length(form.user.bio)}">0</span>/1000 символов</small>
+                                    </div>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.bio')}" th:errors="*{user.bio}"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Рабочие часы -->
+                        <div class="form-section working-hours-section">
+                            <h5 class="section-title"><i class="fas fa-clock me-2"></i>Рабочие часы</h5>
+                            <p class="text-muted mb-4">Укажите рабочие часы для каждого дня недели</p>
+
+                            <!-- Продолжительность приема -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="slotDuration" class="form-label required-field">Продолжительность приема (минут)</label>
+                                    <input type="number" class="form-control" id="slotDuration" th:field="*{schedule.slotDuration}" placeholder="30" min="15" max="120" step="5" required>
+                                    <small class="form-text text-muted">Обычно 15-60 минут</small>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('schedule.slotDuration')}" th:errors="*{schedule.slotDuration}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Рабочие часы по дням недели -->
+                            <div th:each="workHour, stat : ${form.workingHours}">
+                                <div class="time-input-group">
+                                    <input type="hidden" th:field="*{workingHours[__${stat.index}__].dayOfWeek}">
+                                    <h6 class="day-title" th:text="${workHour?.dayOfWeek?.getTranslation() ?: 'День не указан'}"></h6>
+
+                                    <div class="row g-3">
+                                        <!-- Начало работы -->
+                                        <div class="col-md-3">
+                                            <label th:for="'startTime' + ${stat.index}" class="form-label">Начало работы</label>
+                                            <input type="time" class="form-control" th:id="'startTime' + ${stat.index}" th:field="*{workingHours[__${stat.index}__].startTime}">
+                                            <div style="color: #dc3545" th:if="${#fields.hasErrors('workingHours[__${stat.index}__].startTime')}" th:errors="*{workingHours[__${stat.index}__].startTime}"></div>
+                                        </div>
+
+                                        <!-- Окончание работы -->
+                                        <div class="col-md-3">
+                                            <label th:for="'endTime' + ${stat.index}" class="form-label">Окончание работы</label>
+                                            <input type="time" class="form-control" th:id="'endTime' + ${stat.index}" th:field="*{workingHours[__${stat.index}__].endTime}">
+                                            <div style="color: #dc3545" th:if="${#fields.hasErrors('workingHours[__${stat.index}__].endTime')}" th:errors="*{workingHours[__${stat.index}__].endTime}"></div>
+                                        </div>
+
+                                        <!-- Начало перерыва -->
+                                        <div class="col-md-3">
+                                            <label th:for="'breakStart' + ${stat.index}" class="form-label">Начало перерыва</label>
+                                            <input type="time" class="form-control" th:id="'breakStart' + ${stat.index}" th:field="*{workingHours[__${stat.index}__].breakStart}">
+                                            <div style="color: #dc3545" th:if="${#fields.hasErrors('workingHours[__${stat.index}__].breakStart')}" th:errors="*{workingHours[__${stat.index}__].breakStart}"></div>
+                                        </div>
+
+                                        <!-- Окончание перерыва -->
+                                        <div class="col-md-3">
+                                            <label th:for="'breakEnd' + ${stat.index}" class="form-label">Окончание перерыва</label>
+                                            <input type="time" class="form-control" th:id="'breakEnd' + ${stat.index}" th:field="*{workingHours[__${stat.index}__].breakEnd}">
+                                            <div style="color: #dc3545" th:if="${#fields.hasErrors('workingHours[__${stat.index}__].breakEnd')}" th:errors="*{workingHours[__${stat.index}__].breakEnd}"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Статус активности -->
+                        <div class="form-section">
+                            <h5 class="section-title"><i class="fas fa-toggle-on me-2"></i>Статус аккаунта</h5>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="isActive" th:field="*{user.active}">
+                                        <label class="form-check-label fw-bold" for="isActive">
+                                            Активный аккаунт
+                                        </label>
+                                        <div class="form-text">
+                                            <span th:if="${form.user.active}" class="text-success">
+                                                <i class="fas fa-check-circle me-1"></i>Врач активен и может принимать пациентов
+                                            </span>
+                                            <span th:unless="${form.user.active}" class="text-danger">
+                                                <i class="fas fa-times-circle me-1"></i>Врач неактивен и не может принимать пациентов
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Кнопки -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex gap-3">
+                                    <button class="btn btn-warning btn-lg flex-fill" type="submit">
+                                        <i class="fas fa-save me-2"></i>Сохранить изменения
+                                    </button>
+                                    <a th:href="@{/adminPage/searchForEdit}" class="btn btn-secondary btn-lg">
+                                        <i class="fas fa-times me-2"></i>Отмена
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Форматирование полного номера телефона
+    function formatPhoneFull(input) {
+        // Удаляем все нецифровые символы, кроме плюса
+        let numbers = input.value.replace(/[^\d+]/g, '');
+
+        // Если начинается с +375, убираем для обработки
+        if (numbers.startsWith('+375')) {
+            numbers = numbers.substring(4);
+        }
+
+        // Форматируем в +375 (XX) XXX-XX-XX
+        if (numbers.length > 0) {
+            let formatted = '+375 (';
+            if (numbers.length > 0) {
+                formatted += numbers.substring(0, 2);
+            }
+            if (numbers.length > 2) {
+                formatted += ') ' + numbers.substring(2, 5);
+            }
+            if (numbers.length > 5) {
+                formatted += '-' + numbers.substring(5, 7);
+            }
+            if (numbers.length > 7) {
+                formatted += '-' + numbers.substring(7, 9);
+            }
+            input.value = formatted;
+        }
+    }
+
+    // Счетчик символов для биографии
+    function updateCharCounter(textarea) {
+        const charCount = document.getElementById('charCount');
+        const currentLength = textarea.value.length;
+        charCount.textContent = currentLength;
+
+        // Меняем цвет при приближении к лимиту
+        if (currentLength > 900) {
+            charCount.style.color = '#dc3545';
+        } else if (currentLength > 800) {
+            charCount.style.color = '#fd7e14';
+        } else {
+            charCount.style.color = '#28a745';
+        }
+    }
+
+    // Инициализация счетчика при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function () {
+        const bioTextarea = document.getElementById('bio');
+        if (bioTextarea) {
+            updateCharCounter(bioTextarea);
+        }
+
+        // Инициализация формата телефона
+        const phoneInput = document.getElementById('phone');
+        if (phoneInput && phoneInput.value) {
+            formatPhoneFull(phoneInput);
+        }
+    });
+</script>
 </body>
 </html>

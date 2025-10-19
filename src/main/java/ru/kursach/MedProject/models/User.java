@@ -78,6 +78,9 @@ public class User {
     @OneToOne(mappedBy = "doctor", cascade = CascadeType.ALL)
     private Schedule schedule;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private MedicalCard medicalCard;
+
 
     @Enumerated(EnumType.STRING)
     @Column(name="role_name")
@@ -133,6 +136,13 @@ public class User {
         return this.role==Roles.ROLE_DOCTOR;
     }
 
+    public MedicalCard getMedicalCard() {
+        return medicalCard;
+    }
+
+    public void setMedicalCard(MedicalCard medicalCard) {
+        this.medicalCard = medicalCard;
+    }
 
     public User() {
     }

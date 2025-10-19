@@ -1,6 +1,5 @@
 package ru.kursach.MedProject.models;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DoctorScheduleWorkingHours {

@@ -56,10 +56,13 @@ public class AdminController {
         long doctors = users.stream().filter(user -> user.getRole() == Roles.ROLE_DOCTOR).count();
         long simpleUsers = users.stream().filter(user -> user.getRole() == Roles.ROLE_USER).count();
         long admins = users.stream().filter(user -> user.getRole() == Roles.ROLE_ADMIN).count();
+        long radiologistCount = users.stream().filter(user -> user.getRole() == Roles.ROLE_RADIOLOGIST).count();
+
 
         model.addAttribute("adminCount", admins);
         model.addAttribute("doctorCount", doctors);
         model.addAttribute("userCount", simpleUsers);
+        model.addAttribute("radiologistCount", radiologistCount);
 
         return "user/admin";
     }
@@ -105,7 +108,6 @@ public class AdminController {
         if (bindingResult.hasErrors()) {
             return "user/addDoctor";
         }
-        form.getUser().setRole(Roles.ROLE_DOCTOR);
         form.getUser().setCreatedAt(LocalDateTime.now());
         userService.save(form.getUser());
         form.getSchedule().setDoctor(form.getUser());
@@ -142,8 +144,6 @@ public class AdminController {
         DoctorScheduleWorkingHours form = new DoctorScheduleWorkingHours();
         User doctor = userRepository.findUserById(id);
         form.setUser(doctor);
-
-
         if (form.getUser().getSchedule() == null) {
             form.setSchedule(new Schedule());
         }
@@ -180,6 +180,4 @@ public class AdminController {
         userRepository.save(doctor);
         return "redirect:/adminPage";
     }
-
-
 }

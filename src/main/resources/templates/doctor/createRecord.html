@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Осмотр пациента - Медицинский проект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .doctor-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .section-card {
+            border-left: 4px solid #007bff;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .patient-info-card {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .btn-save-record {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-save-record:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .form-section {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/doctorPage/appointments}" class="nav-link px-2 text-white">Мои записи</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <!-- Заголовок страницы -->
+    <div class="doctor-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-user-md me-3"></i>Осмотр пациента
+                </h1>
+                <p class="lead mb-0">Заполнение медицинской карты и начало приёма</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информация о пациенте -->
+    <div class="card patient-info-card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="card-title" th:text="${form.medicalCard.user.firstName + ' ' + form.medicalCard.user.lastName}"></h5>
+                    <p class="card-text mb-1">
+                        <i class="fas fa-phone me-2"></i>
+                        <span th:text="${form.medicalCard.user.phone}"></span>
+                    </p>
+                    <p class="card-text mb-1">
+                        <i class="fas fa-envelope me-2"></i>
+                        <span th:text="${form.medicalCard.user.email}"></span>
+                    </p>
+                    <p class="card-text" th:if="${form.medicalCard.user.dateOfBirth != null}">
+                        <i class="fas fa-birthday-cake me-2"></i>
+                        <span th:text="${#dates.format(form.medicalCard.user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                    </p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="card-text" th:if="${form.medicalCard.bloodType != null}">
+                        <strong>Группа крови:</strong>
+                        <span th:text="${form.medicalCard.bloodType}"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/doctorPage/saveMedicalRecord}" th:method="post" th:object="${form}">
+        <!-- Скрытые поля -->
+        <input type="hidden" th:field="*{medicalCard.id}"/>
+        <input type="hidden" th:field="*{medicalCard.user.id}"/>
+
+        <!-- Раздел 1: Обновление медицинской карты -->
+        <div class="card section-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Медицинская карта пациента</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Группа крови -->
+                    <div class="col-md-4">
+                        <label class="form-label">Группа крови</label>
+                        <select th:field="*{medicalCard.bloodType}" class="form-select">
+                            <option value="">Не указана</option>
+                            <option value="O(I)">O(I)</option>
+                            <option value="A(II)">A(II)</option>
+                            <option value="B(III)">B(III)</option>
+                            <option value="AB(IV)">AB(IV)</option>
+                        </select>
+                    </div>
+
+                    <!-- Аллергии -->
+                    <div class="col-md-8">
+                        <label class="form-label">Аллергии</label>
+                        <textarea th:field="*{medicalCard.allergies}" class="form-control"
+                                  rows="2" placeholder="Укажите аллергии пациента..."></textarea>
+                    </div>
+
+                    <!-- Хронические заболевания -->
+                    <div class="col-12">
+                        <label class="form-label">Хронические заболевания</label>
+                        <textarea th:field="*{medicalCard.chronicDiseases}" class="form-control"
+                                  rows="2" placeholder="Укажите хронические заболевания..."></textarea>
+                    </div>
+
+                    <!-- История болезней -->
+                    <div class="col-12">
+                        <label class="form-label">История болезней</label>
+                        <textarea th:field="*{medicalCard.medicalHistory}" class="form-control"
+                                  rows="3" placeholder="Опишите историю болезней пациента..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Раздел 2: Текущий осмотр -->
+        <div class="card section-card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-stethoscope me-2"></i>Текущий осмотр</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Симптомы -->
+                    <div class="col-12">
+                        <label class="form-label">Жалобы и симптомы</label>
+                        <textarea th:field="*{medicalRecord.symptoms}" class="form-control"
+                                  rows="3" placeholder="Опишите жалобы пациента..." required></textarea>
+                    </div>
+
+                    <!-- Данные осмотра -->
+                    <div class="col-12">
+                        <label class="form-label">Данные осмотра</label>
+                        <textarea th:field="*{medicalRecord.examinationNotes}" class="form-control"
+                                  rows="3" placeholder="Результаты осмотра..."></textarea>
+                    </div>
+
+                    <!-- Предварительный диагноз -->
+                    <div class="col-12">
+                        <label class="form-label">Предварительный диагноз</label>
+                        <input th:field="*{medicalRecord.preliminaryDiagnosis}" type="text"
+                               class="form-control" placeholder="Предварительный диагноз...">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Раздел 3: Направление на исследования -->
+        <div class="card section-card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-x-ray me-2"></i>Направление на исследования</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Нужен ли снимок -->
+                    <div class="col-md-6">
+                        <div class="form-check form-switch">
+                            <input th:field="*{medicalRecord.imagingRequired}"
+                                   class="form-check-input" type="checkbox" role="switch"
+                                   id="imagingRequired" onchange="toggleImagingFields()">
+                            <label class="form-check-label" for="imagingRequired">
+                                Требуется рентген/снимок
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Поля для снимка (изначально скрыты) -->
+                    <div id="imagingFields" class="row g-3 mt-2" style="display: none;">
+                        <!-- Тип снимка -->
+                        <div class="col-md-6">
+                            <label class="form-label">Тип исследования</label>
+                            <select th:field="*{medicalRecord.imagingType}" class="form-select">
+                                <option th:each="type : ${T(ru.kursach.MedProject.enums.ImagingType).values()}"
+                                        th:value="${type}"
+                                        th:text="${type.description}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Назначенный радиолог -->
+                        <div class="col-md-6">
+                            <label class="form-label">Назначить радиолога</label>
+                            <select th:field="*{medicalRecord.assignedRadiologist}" class="form-select">
+                                <option value="">Выберите радиолога...</option>
+                                <option th:each="radiologist : ${radiologists}"
+                                        th:value="${radiologist.id}"
+                                        th:text="${radiologist.firstName + ' ' + radiologist.lastName}"></option>
+                            </select>
+                        </div>
+
+                        <!-- Клинический вопрос -->
+                        <div class="col-12">
+                            <label class="form-label">Клинический вопрос к радиологу</label>
+                            <textarea th:field="*{medicalRecord.clinicalQuestion}" class="form-control"
+                                      rows="2" placeholder="Сформулируйте вопрос к радиологу..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex gap-3 justify-content-end">
+                    <a th:href="@{/doctorPage/appointments}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-times me-2"></i>Отмена
+                    </a>
+                    <button type="submit" class="btn btn-save-record btn-lg">
+                        <i class="fas fa-save me-2"></i>Сохранить запись
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Показ/скрытие полей для снимка
+    function toggleImagingFields() {
+        const imagingRequired = document.getElementById('imagingRequired').checked;
+        const imagingFields = document.getElementById('imagingFields');
+
+        if (imagingRequired) {
+            imagingFields.style.display = 'block';
+        } else {
+            imagingFields.style.display = 'none';
+        }
+    }
+
+    // Инициализация при загрузке страницы
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleImagingFields();
+    });
+</script>
+</body>
+</html>

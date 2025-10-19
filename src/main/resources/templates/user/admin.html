@@ -29,6 +29,9 @@
         .doctor-card {
             border-left-color: #007bff;
         }
+        .radiologist-card {
+            border-left-color: #6f42c1; /* Фиолетовый для радиологов */
+        }
         .user-avatar {
             width: 60px;
             height: 60px;
@@ -39,6 +42,9 @@
             justify-content: center;
             color: white;
             font-size: 20px;
+        }
+        .radiologist-avatar {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c); /* Градиент для радиологов */
         }
         .role-badge {
             font-size: 0.8rem;
@@ -132,7 +138,7 @@
         }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 0.5rem;
         }
         .stat-item {
@@ -246,11 +252,122 @@
                                         <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
                                             <div class="input-group input-group-sm">
                                                 <select name="newRole" class="form-select form-select-sm">
-                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
-                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
+                                                    <option th:each="role : ${T(ru.kursach.MedProject.enums.Roles).values()}"
+                                                            th:value="${role.name()}"
+                                                            th:selected="${user.role == role}"
+                                                            th:text="${role.getTranslation()}">
                                                     </option>
-                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
-                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
+                                                </select>
+                                                <button type="submit" class="btn btn-primary-sm">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Врачи -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Врачи</h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="user : ${users}" th:if="${user.isDoctor()}">
+                        <div class="card user-card doctor-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <div class="user-avatar">
+                                            <i class="fas fa-user-md"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <h6 class="card-title mb-1" th:text="${user.email}"></h6>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-birthday-cake me-1"></i>
+                                            <span th:if="${user.dateOfBirth != null}" th:text="${#dates.format(user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                                            <span th:unless="${user.dateOfBirth != null}">Дата не указана</span>
+                                        </div>
+                                        <div class="text-muted small" th:if="${user.specialization != null}">
+                                            <i class="fas fa-stethoscope me-1"></i>
+                                            <span th:text="${user.specialization.getName()}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge bg-primary role-badge p-2">
+                                            <i class="fas fa-user-md me-1"></i>
+                                            <span th:text="${user.role.getTranslation()}"></span>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
+                                            <div class="input-group input-group-sm">
+                                                <select name="newRole" class="form-select form-select-sm">
+                                                    <option th:each="role : ${T(ru.kursach.MedProject.enums.Roles).values()}"
+                                                            th:value="${role.name()}"
+                                                            th:selected="${user.role == role}"
+                                                            th:text="${role.getTranslation()}">
+                                                    </option>
+                                                </select>
+                                                <button type="submit" class="btn btn-primary-sm">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Радиологи -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-purple text-white" style="background: linear-gradient(135deg, #6f42c1 0%, #e83e8c 100%);">
+                    <h5 class="mb-0"><i class="fas fa-x-ray me-2"></i>Радиологи</h5>
+                </div>
+                <div class="card-body">
+                    <div th:each="user : ${users}" th:if="${user.role.name() == 'ROLE_RADIOLOGIST'}">
+                        <div class="card user-card radiologist-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <div class="col-md-1 text-center">
+                                        <div class="user-avatar radiologist-avatar">
+                                            <i class="fas fa-x-ray"></i>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-5">
+                                        <h6 class="card-title mb-1" th:text="${user.email}"></h6>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-birthday-cake me-1"></i>
+                                            <span th:if="${user.dateOfBirth != null}" th:text="${#dates.format(user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                                            <span th:unless="${user.dateOfBirth != null}">Дата не указана</span>
+                                        </div>
+                                        <div class="text-muted small" th:if="${user.specialization != null}">
+                                            <i class="fas fa-stethoscope me-1"></i>
+                                            <span th:text="${user.specialization.getName()}"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <span class="badge role-badge p-2" style="background: linear-gradient(45deg, #6f42c1, #e83e8c);">
+                                            <i class="fas fa-x-ray me-1"></i>
+                                            <span th:text="${user.role.getTranslation()}"></span>
+                                        </span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
+                                            <div class="input-group input-group-sm">
+                                                <select name="newRole" class="form-select form-select-sm">
+                                                    <option th:each="role : ${T(ru.kursach.MedProject.enums.Roles).values()}"
+                                                            th:value="${role.name()}"
+                                                            th:selected="${user.role == role}"
+                                                            th:text="${role.getTranslation()}">
                                                     </option>
                                                 </select>
                                                 <button type="submit" class="btn btn-primary-sm">
@@ -299,68 +416,10 @@
                                         <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
                                             <div class="input-group input-group-sm">
                                                 <select name="newRole" class="form-select form-select-sm">
-                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
-                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
-                                                    </option>
-                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
-                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
-                                                    </option>
-                                                </select>
-                                                <button type="submit" class="btn btn-primary-sm">
-                                                    <i class="fas fa-sync-alt"></i>
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Доктора -->
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Врачи</h5>
-                </div>
-                <div class="card-body">
-                    <div th:each="user : ${users}" th:if="${user.isDoctor()}">
-                        <div class="card user-card doctor-card mb-3">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-md-1 text-center">
-                                        <div class="user-avatar">
-                                            <i class="fas fa-user-md"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-5">
-                                        <h6 class="card-title mb-1" th:text="${user.email}"></h6>
-                                        <div class="text-muted small">
-                                            <i class="fas fa-birthday-cake me-1"></i>
-                                            <span th:if="${user.dateOfBirth != null}" th:text="${#dates.format(user.dateOfBirth, 'dd.MM.yyyy')}"></span>
-                                            <span th:unless="${user.dateOfBirth != null}">Дата не указана</span>
-                                        </div>
-                                        <div class="text-muted small" th:if="${user.specialization != null}">
-                                            <i class="fas fa-stethoscope me-1"></i>
-                                            <span th:text="${user.specialization.getName()}"></span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <span class="badge bg-primary role-badge p-2">
-                                            <i class="fas fa-user-md me-1"></i>
-                                            <span th:text="${user.role.getTranslation()}"></span>
-                                        </span>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <form th:action="@{/adminPage/setRole/{id}(id=${user.id})}" method="POST">
-                                            <div class="input-group input-group-sm">
-                                                <select name="newRole" class="form-select form-select-sm">
-                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.name()}"
-                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_ADMIN.getTranslation()}">
-                                                    </option>
-                                                    <option th:value="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.name()}"
-                                                            th:text="${T(ru.kursach.MedProject.enums.Roles).ROLE_USER.getTranslation()}">
+                                                    <option th:each="role : ${T(ru.kursach.MedProject.enums.Roles).values()}"
+                                                            th:value="${role.name()}"
+                                                            th:selected="${user.role == role}"
+                                                            th:text="${role.getTranslation()}">
                                                     </option>
                                                 </select>
                                                 <button type="submit" class="btn btn-primary-sm">
@@ -389,33 +448,12 @@
                     <div class="d-grid gap-3">
                         <a th:href="@{/adminPage/addDoctor}" class="btn btn-primary btn-admin-action">
                             <i class="fas fa-user-plus"></i>
-                            <span>Добавить врача</span>
+                            <span>Добавить специалиста</span>
                         </a>
                         <a th:href="@{/adminPage/searchForEdit}" class="btn btn-warning btn-admin-action">
                             <i class="fas fa-edit"></i>
-                            <span>Редактировать врачей</span>
+                            <span>Редактировать специалистов</span>
                         </a>
-                    </div>
-                </div>
-
-                <!-- Быстрая статистика -->
-                <div class="quick-stats">
-                    <h6 class="text-uppercase fw-bold text-muted mb-3 small">
-                        <i class="fas fa-chart-line me-1"></i>Статистика
-                    </h6>
-                    <div class="stats-grid">
-                        <div class="stat-item text-center">
-                            <div class="stat-number text-danger fw-bold" th:text="${adminCount}">0</div>
-                            <div class="stat-label small text-muted">Админы</div>
-                        </div>
-                        <div class="stat-item text-center">
-                            <div class="stat-number text-primary fw-bold" th:text="${doctorCount}">0</div>
-                            <div class="stat-label small text-muted">Врачи</div>
-                        </div>
-                        <div class="stat-item text-center">
-                            <div class="stat-number text-success fw-bold" th:text="${userCount}">0</div>
-                            <div class="stat-label small text-muted">Пользователи</div>
-                        </div>
                     </div>
                 </div>
 
@@ -437,6 +475,11 @@
                                 <span class="badge bg-primary ms-1" th:text="${doctorCount}">0</span>
                             </div>
                             <div class="py-2 user-role-item">
+                                <i class="fas fa-x-ray me-2" style="color: #6f42c1;"></i>
+                                <span>Радиологи</span>
+                                <span class="badge ms-1" style="background: #6f42c1;" th:text="${radiologistCount}">0</span>
+                            </div>
+                            <div class="py-2 user-role-item">
                                 <i class="fas fa-user text-success me-2"></i>
                                 <span>Пользователи</span>
                                 <span class="badge bg-success ms-1" th:text="${userCount}">0</span>
@@ -445,7 +488,7 @@
                     </div>
 
                     <button class="sidebar-menu mt-3" data-bs-toggle="collapse" data-bs-target="#doctors-collapse">
-                        <i class="fas fa-stethoscope me-2"></i>Управление врачами
+                        <i class="fas fa-stethoscope me-2"></i>Управление специалистами
                         <i class="fas fa-chevron-down ms-auto transition-icon"></i>
                     </button>
                     <div class="collapse" id="doctors-collapse">
@@ -453,13 +496,13 @@
                             <div class="py-2">
                                 <a th:href="@{/adminPage/addDoctor}" class="text-decoration-none d-flex align-items-center">
                                     <i class="fas fa-plus-circle text-success me-2"></i>
-                                    <span>Добавить врача</span>
+                                    <span>Добавить специалиста</span>
                                 </a>
                             </div>
                             <div class="py-2">
                                 <a th:href="@{/adminPage/searchForEdit}" class="text-decoration-none d-flex align-items-center">
                                     <i class="fas fa-edit text-warning me-2"></i>
-                                    <span>Редактировать врачей</span>
+                                    <span>Редактировать специалистов</span>
                                 </a>
                             </div>
                             <div class="py-2">

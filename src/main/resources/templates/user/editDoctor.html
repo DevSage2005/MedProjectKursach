@@ -159,7 +159,6 @@
                     <form th:action="@{/adminPage/editDoctor/{id}(id=${form.user.id})}" th:method="post" th:object="${form}" class="needs-validation" novalidate>
 
                         <input type="hidden" th:field="*{user.password}">
-                        <input type="hidden" th:field="*{user.role}">
                         <input type="hidden" th:field="*{user.createdAt}">
                         <input type="hidden" th:field="*{user.lastLoginAt}">
                         <input type="hidden" th:field="*{user.id}">
@@ -240,6 +239,20 @@
                         <div class="form-section">
                             <h5 class="section-title"><i class="fas fa-stethoscope me-2"></i>Профессиональная информация</h5>
                             <div class="row g-3">
+
+                                <div class="col-md-6">
+                                    <label for="selectedRole" class="form-label required-field">Роль специалиста</label>
+                                    <select class="form-select" id="selectedRole" th:field="*{user.role}" required>
+                                        <option value="">Выберите роль...</option>
+                                        <option th:value=" ${T(ru.kursach.MedProject.enums.Roles).ROLE_DOCTOR.name()}"
+                                                th:text=" ${T(ru.kursach.MedProject.enums.Roles).ROLE_DOCTOR.getTranslation()}">
+                                        </option>
+                                        <option th:value=" ${T(ru.kursach.MedProject.enums.Roles).ROLE_RADIOLOGIST.name()}"
+                                                th:text=" ${T(ru.kursach.MedProject.enums.Roles).ROLE_RADIOLOGIST.getTranslation()}">
+                                        </option>
+                                    </select>
+                                    <div style="color: #dc3545" th:if="${#fields.hasErrors('user.role')}" th:errors="*{user.role}"></div>
+                                </div>
 
                                 <!-- Медицинская лицензия -->
                                 <div class="col-md-6">

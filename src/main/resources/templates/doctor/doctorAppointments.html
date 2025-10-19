@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>Записи на приём - Медицинский проект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .doctor-header {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .appointment-card {
+            border-left: 4px solid #007bff;
+            transition: transform 0.2s;
+            margin-bottom: 1rem;
+            border-radius: 10px;
+        }
+
+        .appointment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .appointment-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #007bff, #0056b3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .btn-start-appointment {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-start-appointment:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+        .btn-completed {
+            background: linear-gradient(45deg, #6c757d, #868e96);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .time-slot {
+            background: linear-gradient(45deg, #e3f2fd, #bbdefb);
+            border-radius: 8px;
+            padding: 0.5rem;
+            text-align: center;
+            font-weight: 600;
+            color: #1976d2;
+        }
+
+        .patient-info {
+            background: rgba(0, 123, 255, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .quick-stats {
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.5rem;
+        }
+
+        .stat-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            padding: 0.5rem;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .no-appointments {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+
+        .appointment-time {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .appointment-date {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
+            color: white;
+            border-radius: 10px;
+            padding: 0.5rem 1rem;
+            text-align: center;
+        }
+
+        .btn-admin-action {
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-admin-action:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-white">Запись к врачу</a></li>
+                <li><a th:href="@{/doctorPage/appointments}" class="nav-link px-2 text-white">Мои записи</a></li>
+            </ul>
+            <div class="text-end">
+                <span class="text-white me-3" sec:authentication="name"></span>
+                <form th:method="POST" th:action="@{/logout}" class="d-inline">
+                    <button type="submit" class="btn btn-warning">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <!-- Заголовок страницы -->
+    <div class="doctor-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-calendar-check me-3"></i>Записи на приём
+                </h1>
+                <p class="lead mb-0">Управление записями пациентов на сегодня</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <div class="appointment-date">
+                    <i class="fas fa-calendar-day me-2"></i>
+                    <span th:text="${#dates.format(currentDate, 'dd.MM.yyyy')}"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Основной контент слева -->
+        <div class="col-lg-9">
+            <!-- Статистика -->
+            <div class="quick-stats mb-4">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" th:text="${doctorAppointments.size()}">0</div>
+                        <div class="stat-label small text-muted">Всего записей</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number text-success" th:text="${scheduledAppointments.size()}">0</div>
+                        <div class="stat-label small text-muted">Запланировано</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Список записей -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Записи на сегодня</h5>
+                </div>
+                <div class="card-body">
+                    <div th:if="${doctorAppointments.isEmpty()}">
+                        <div class="no-appointments">
+                            <i class="fas fa-calendar-times fa-3x mb-3 text-muted"></i>
+                            <h4 class="text-muted">На сегодня записей нет</h4>
+                            <p class="text-muted">У вас нет запланированных приёмов на этот день</p>
+                        </div>
+                    </div>
+
+                    <div th:each="appointment : ${doctorAppointments}">
+                        <div class="card appointment-card mb-3">
+                            <div class="card-body">
+                                <div class="row align-items-center">
+                                    <!-- Аватар и время -->
+                                    <div class="col-md-2">
+                                        <div class="d-flex align-items-center">
+                                            <div class="appointment-avatar me-3">
+                                                <i class="fas fa-user"></i>
+                                            </div>
+                                            <div>
+                                                <div class="appointment-time"
+                                                     th:text="${#temporals.format(appointment.slot, 'HH:mm')}"></div>
+                                                <small class="text-muted">Время приёма</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Информация о пациенте -->
+                                    <div class="col-md-5">
+                                        <div class="patient-info">
+                                            <h6 class="mb-1"
+                                                th:text="${appointment.user.firstName + ' ' + appointment.user.lastName}"></h6>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-phone me-1"></i>
+                                                <span th:text="${appointment.user.phone}"></span>
+                                            </div>
+                                            <div class="text-muted small">
+                                                <i class="fas fa-envelope me-1"></i>
+                                                <span th:text="${appointment.user.email}"></span>
+                                            </div>
+                                            <div th:if="${appointment.user.dateOfBirth != null}"
+                                                 class="text-muted small">
+                                                <i class="fas fa-birthday-cake me-1"></i>
+                                                <span th:text="${#dates.format(appointment.user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Статус -->
+                                    <div class="col-md-2">
+    <span th:switch="${appointment.status.name()}" class="badge status-badge p-2">
+        <span th:case="'SCHEDULED'" class="badge bg-success">
+            <i class="fas fa-clock me-1"></i>
+            <span th:text="${appointment.status.name()}"></span>
+        </span>
+        <span th:case="'COMPLETED'" class="badge bg-secondary">
+            <i class="fas fa-check me-1"></i>
+            <span th:text="${appointment.status.name()}"></span>
+        </span>
+        <span th:case="*" class="badge bg-danger">
+            <i class="fas fa-times me-1"></i>
+            <span th:text="${appointment.status.name()}"></span>
+        </span>
+    </span>
+                                    </div>
+                                    <!-- Действия -->
+                                    <div class="col-md-3">
+                                        <div class="d-flex gap-2">
+                                            <!-- Исправленная кнопка "Начать приём" -->
+                                            <a th:href="@{/doctorPage/createMedicalRecord/{id}(id=${appointment.user.id})}">
+                                                <button th:if="${appointment.status.name() == 'SCHEDULED'}"
+                                                        class="btn btn-start-appointment">
+                                                    <i class="fas fa-play me-1"></i>
+                                                    Начать приём
+                                                </button>
+                                            </a>
+
+                                            <button th:if="${appointment.status.name() == 'COMPLETED'}"
+                                                    class="btn btn-completed" disabled>
+                                                <i class="fas fa-check-double me-1"></i>
+                                                Завершён
+                                            </button>
+
+                                            <button th:if="${appointment.status.name() == 'CANCELLED'}"
+                                                    class="btn btn-completed" disabled>
+                                                <i class="fas fa-times me-1"></i>
+                                                Отменён
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Боковая панель справа -->
+        <div class="col-lg-3">
+            <div class="sidebar p-4">
+                <h5 class="section-header">
+                    <i class="fas fa-bars me-2"></i>Меню врача
+                </h5>
+
+                <!-- Быстрые действия -->
+                <div class="admin-actions mb-4">
+                    <div class="d-grid gap-3">
+                        <a th:href="@{/doctorPage/appointments}" class="btn btn-success btn-admin-action">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Мои записи</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Статистика дня -->
+                <div class="quick-stats">
+                    <h6 class="text-uppercase fw-bold text-muted mb-3 small">
+                        <i class="fas fa-chart-pie me-1"></i>Статистика дня
+                    </h6>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-number text-primary" th:text="${doctorAppointments.size()}">0</div>
+                            <div class="stat-label small text-muted">Всего</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number text-success" th:text="${scheduledAppointments.size()}">0</div>
+                            <div class="stat-label small text-muted">Запланировано</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number text-secondary" th:text="${completedAppointments.size()}">0</div>
+                            <div class="stat-label small text-muted">Завершено</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number text-danger" th:text="${cancelledAppointments.size()}">0</div>
+                            <div class="stat-label small text-muted">Отменено</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ближайшие записи -->
+                <div class="mt-4">
+                    <h6 class="text-uppercase fw-bold text-muted mb-3 small">
+                        <i class="fas fa-clock me-1"></i>Ближайшие записи
+                    </h6>
+                    <div th:each="appointment : ${scheduledAppointments}">
+                        <div class="d-flex align-items-center mb-2 p-2 border rounded">
+                            <div class="time-slot me-2" th:text="${#temporals.format(appointment.slot, 'HH:mm')}"></div>
+                            <div class="flex-grow-1">
+                                <small class="d-block" th:text="${appointment.user.firstName}"></small>
+                                <small class="text-muted">Пациент</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div th:if="${scheduledAppointments.isEmpty()}">
+                        <p class="text-muted small">Нет запланированных записей</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Заглушка для функции начала приёма
+    function startAppointment(appointmentId) {
+        if (confirm('Начать приём пациента?')) {
+            // Здесь будет AJAX запрос для изменения статуса
+            alert('Приём начат! ID записи: ' + appointmentId);
+            // Временная заглушка - перезагрузка страницы
+            window.location.reload();
+        }
+    }
+</script>
+</body>
+</html>

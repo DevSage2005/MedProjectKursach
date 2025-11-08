@@ -1,6 +1,4 @@
 package ru.kursach.MedProject.controllers;
-
-
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -10,7 +8,6 @@ import ru.kursach.MedProject.models.MedicalCard;
 import ru.kursach.MedProject.models.User;
 import ru.kursach.MedProject.services.UserService;
 import ru.kursach.MedProject.validators.UserValidator;
-
 import java.time.LocalDateTime;
 
 @Controller
@@ -51,6 +48,7 @@ public class AuthController {
         medicalCard.setCreatedDate(LocalDateTime.now());
         user.setMedicalCard(medicalCard);
         medicalCard.setUser(user);
+        medicalCard.setCreatedDate(LocalDateTime.now());
         userService.save(user);
         return "redirect:/auth/login";
     }

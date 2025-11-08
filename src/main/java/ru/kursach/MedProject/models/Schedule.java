@@ -1,7 +1,7 @@
 package ru.kursach.MedProject.models;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Cascade;
+
 
 import java.util.List;
 

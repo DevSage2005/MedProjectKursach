@@ -5,6 +5,8 @@ import ru.kursach.MedProject.enums.ImagingType;
 import ru.kursach.MedProject.enums.MedicalRecordStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "medical_record")
@@ -13,7 +15,7 @@ public class MedicalRecord {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medical_card_id")
     private MedicalCard medicalCard;
 
@@ -21,7 +23,7 @@ public class MedicalRecord {
     @JoinColumn(name = "appointment_id")
     private Appointment appointment;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "doctor_id")
     private User doctor;
 
@@ -42,7 +44,7 @@ public class MedicalRecord {
     @Column(name = "imaging_type")
     private ImagingType imagingType;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "assigned_radiologist_id")
     private User assignedRadiologist;
 
@@ -70,6 +72,21 @@ public class MedicalRecord {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private MedicalRecordStatus status;
+
+    @OneToMany(mappedBy = "medicalRecord", fetch = FetchType.EAGER)
+    private List<MedicalImage> medicalImage = new ArrayList<>();
+
+    public List<MedicalImage> getMedicalImage() {
+        return medicalImage;
+    }
+
+    public void addImage(MedicalImage medicalImage){
+        this.medicalImage.add(medicalImage);
+    }
+
+    public void setMedicalImage(List<MedicalImage> medicalImage) {
+        this.medicalImage = medicalImage;
+    }
 
     public MedicalRecord() {}
 

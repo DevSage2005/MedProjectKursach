@@ -141,6 +141,7 @@
                 <li><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-secondary">Найти врача</a></li>
                 <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-secondary">Панель администратора</a></li>
                 <li sec:authorize="hasRole('DOCTOR')"><a th:href="@{/doctorPage/appointments}" class="nav-link px-2 text-secondary">Записи</a></li>
+                <li sec:authorize="hasRole('RADIOLOGIST')"><a th:href="@{/radiologistPage/analysis}" class="nav-link px-2 text-secondary">Анализы</a></li>
             </ul>
             <div class="text-end">
                 <span class="text-white me-3" sec:authentication="name"></span>

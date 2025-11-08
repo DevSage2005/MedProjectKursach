@@ -296,7 +296,7 @@
                                     <div class="col-md-3">
                                         <div class="d-flex gap-2">
                                             <!-- Исправленная кнопка "Начать приём" -->
-                                            <a th:href="@{/doctorPage/createMedicalRecord/{id}(id=${appointment.user.id})}">
+                                            <a th:href="@{/doctorPage/createMedicalRecord/{id}(id=${appointment.id})}">
                                                 <button th:if="${appointment.status.name() == 'SCHEDULED'}"
                                                         class="btn btn-start-appointment">
                                                     <i class="fas fa-play me-1"></i>

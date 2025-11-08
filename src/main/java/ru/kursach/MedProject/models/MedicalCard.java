@@ -3,6 +3,7 @@ package ru.kursach.MedProject.models;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -36,7 +37,7 @@ public class MedicalCard {
     private LocalDateTime lastUpdated;
 
     @OneToMany(mappedBy = "medicalCard", cascade = CascadeType.ALL)
-    private List<MedicalRecord> medicalRecords;
+    private List<MedicalRecord> medicalRecords = new ArrayList<>();
 
     public MedicalCard(User user, String bloodType, String allergies, String chronicDiseases, String currentMedications, String medicalHistory, LocalDateTime createdDate, LocalDateTime lastUpdated, List<MedicalRecord> medicalRecords) {
         this.user = user;
@@ -47,6 +48,10 @@ public class MedicalCard {
         this.createdDate = createdDate;
         this.lastUpdated = lastUpdated;
         this.medicalRecords = medicalRecords;
+    }
+
+    public void addRecord(MedicalRecord record){
+        medicalRecords.add(record);
     }
 
     public MedicalCard() {}

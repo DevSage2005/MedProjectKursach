@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Обработка изображения - Медицинский проект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .processing-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+        }
+
+        .image-container {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f8f9fa;
+        }
+
+        .processed-image {
+            max-width: 100%;
+            max-height: 500px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+        }
+
+        .controls-panel {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 1.5rem;
+        }
+
+        .param-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .btn-process {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: white;
+        }
+
+        .btn-process:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+            color: white;
+        }
+
+        .slider-value {
+            background: #28a745;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/radiologistPage/analysis}" class="nav-link px-2 text-white">Анализы</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <!-- Заголовок страницы -->
+    <div class="processing-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-magic me-3"></i>Обработка изображения
+                </h1>
+                <p class="lead mb-0">Просмотр и преобразование медицинского снимка</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a th:href="@{/radiologistPage/analysis}" class="btn btn-light">
+                    <i class="fas fa-arrow-left me-2"></i>Назад к списку
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информация о пациенте -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <p><strong>Пациент:</strong>
+                        <span th:text="${medicalRecord.medicalCard.user.firstName + ' ' + medicalRecord.medicalCard.user.lastName}"></span>
+                    </p>
+                    <p><strong>Тип исследования:</strong>
+                        <span class="badge bg-info" th:text="${medicalRecord.imagingType.getDescription()}"></span>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Файл:</strong>
+                        <span th:text="${medicalImage.originalFileName}"></span>
+                    </p>
+                    <p><strong>Размер:</strong>
+                        <span th:text="${#numbers.formatDecimal(medicalImage.fileSize / 1024.0 / 1024.0, 1, 2)} + ' MB'"></span>
+                    </p>
+                </div>
+                <div class="col-md-4">
+                    <p><strong>Дата загрузки:</strong>
+                        <span th:text="${#temporals.format(medicalImage.uploadedAt, 'dd.MM.yyyy HH:mm')}"></span>
+                    </p>
+                    <p><strong>Статус:</strong>
+                        <span class="badge bg-success" th:text="${medicalImage.status.getTranslation()}"></span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Панель управления -->
+        <div class="col-lg-4">
+            <div class="controls-panel shadow-sm">
+                <h4 class="mb-4"><i class="fas fa-sliders-h me-2"></i>Параметры обработки</h4>
+
+                <form th:action="@{/imageData/getProcessedImage/{imageId}(imageId=${medicalImage.id})}" th:method="POST"
+                      id="processForm">  <!--     Добавить правильный URL-->
+
+                    <!-- Контраст и яркость -->
+                    <div class="param-group">
+                        <h6>Контраст и яркость</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Контраст</label>
+                            <input type="range" class="form-range" name="contrast" min="0.1" max="10.0" step="0.1"
+                                   value="1.0"
+                                   oninput="document.getElementById('contrastValue').textContent = this.value">
+                            <div class="d-flex justify-content-between">
+                                <small>Меньше</small>
+                                <span class="slider-value" id="contrastValue">1.0</span>
+                                <small>Больше</small>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Яркость</label>
+                            <input type="range" class="form-range" name="brightness" min="0" max="100" step="1"
+                                   value="0"
+                                   oninput="document.getElementById('brightnessValue').textContent = this.value">
+                            <div class="d-flex justify-content-between">
+                                <small>Темнее</small>
+                                <span class="slider-value" id="brightnessValue">0</span>
+                                <small>Светлее</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Фильтры -->
+                    <div class="param-group">
+                        <h6>Фильтры</h6>
+                        <div class="mb-3">
+                            <label class="form-label">Резкость</label>
+                            <input type="range" class="form-range" name="sharpness" min="0.5" max="10" step="0.25" value="0.5"
+                                   oninput="document.getElementById('sharpnessValue').textContent = this.value">
+                            <div class="d-flex justify-content-between">
+                                <small>Мягко</small>
+                                <span class="slider-value" id="sharpnessValue">0</span>
+                                <small>Резко</small>
+                            </div>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="grayscale" id="grayscale">
+                            <label class="form-check-label" for="grayscale">Черно-белый фильтр</label>
+                        </div>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="enhance" id="enhance">
+                            <label class="form-check-label" for="enhance">Улучшение деталей</label>
+                        </div>
+                    </div>
+
+
+                    <!-- Кнопки действий -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-process">
+                            <i class="fas fa-play me-2"></i>Применить обработку
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="resetForm()">
+                            <i class="fas fa-redo me-2"></i>Сбросить настройки
+                        </button>
+                        <a th:href="@{/radiologistPage/analyze/{imageId}(imageId=${medicalImage.id})}"
+                           class="btn btn-primary">
+                            <i class="fas fa-brain me-2"></i>Запустить AI анализ
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Область просмотра изображения -->
+        <div class="col-lg-8">
+            <div class="image-container shadow-sm">
+                <div class="text-center mb-3">
+                    <h5><i class="fas fa-image me-2"></i>Просмотр снимка</h5>
+                </div>
+
+                <!-- Оригинальное изображение -->
+                <div class="mb-4">
+                    <h6>Оригинальное изображение</h6>
+                    <div class="text-center">
+                        <img th:src="@{'/imageData/' + ${medicalImage.id}}"
+                             alt="Медицинский снимок" class="processed-image">
+                    </div>
+                </div>
+
+                <!-- Обработанное изображение (будет появляться после обработки) -->
+                <div th:if="${medicalImage.getProcessedFilePath()!=null and !medicalImage.getProcessedFilePath().isEmpty()}" class="mb-4">  <!--th:if="${processedImage != null}"-->
+                    <h6>Обработанное изображение</h6>
+                    <div class="text-center">
+                        <img th:src="@{/imageData/processedImage/{imageId}(imageId=${medicalImage.id})}"
+                             alt="Обработанный снимок" class="processed-image">
+                    </div>
+                </div>
+
+                <!-- Результаты анализа -->
+                <div th:if="${analysisResults != null}" class="mt-4">
+                    <div class="card border-success">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Результаты анализа</h6>
+                        </div>
+                        <div class="card-body">
+                            <div th:text="${analysisResults}"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    function resetForm() {
+        document.getElementById('processForm').reset();
+        document.getElementById('contrastValue').textContent = '1.0';
+        document.getElementById('brightnessValue').textContent = '0';
+        document.getElementById('sharpnessValue').textContent = '0';
+    }
+
+    // Автоматическое обновление изображения при изменении параметров
+    document.querySelectorAll('input[type="range"], input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', function () {
+            // Здесь можно добавить AJAX для предпросмотра
+            console.log('Параметр изменен:', this.name, this.value);
+        });
+    });
+</script>
+</body>
+</html>

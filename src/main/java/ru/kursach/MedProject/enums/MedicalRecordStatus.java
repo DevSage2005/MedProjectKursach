@@ -4,6 +4,5 @@ public enum MedicalRecordStatus {
     IN_PROGRESS,
     IMAGING_REQUESTED,
     IMAGING_COMPLETED,
-    DIAGNOSIS_PENDING,
     COMPLETED
 }

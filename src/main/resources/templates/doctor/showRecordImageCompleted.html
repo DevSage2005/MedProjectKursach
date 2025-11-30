@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="ru" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Завершенный анализ - Медицинский проект</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .doctor-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .patient-info-card {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            color: white;
+            border-radius: 15px;
+        }
+        .section-card {
+            border-left: 4px solid #007bff;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .imaging-section {
+            border-left: 4px solid #28a745;
+        }
+        .btn-save-record {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            border: none;
+            border-radius: 10px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-save-record:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        .btn-view-medical-card {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+        }
+        .btn-view-medical-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+            color: white;
+        }
+        .image-container {
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 1rem;
+            background: #f8f9fa;
+            text-align: center;
+        }
+        .medical-image {
+            max-width: 100%;
+            max-height: 400px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .medical-image:hover {
+            transform: scale(1.02);
+        }
+        .image-thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border: 2px solid #dee2e6;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 0.25rem;
+        }
+        .image-thumbnail.active {
+            border-color: #007bff;
+            border-width: 3px;
+        }
+        .analysis-results {
+            background: rgba(40, 167, 69, 0.1);
+            border-left: 4px solid #28a745;
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+        }
+        .completion-notice {
+            background: linear-gradient(45deg, #28a745, #20c997);
+            color: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        .image-modal .modal-dialog {
+            max-width: 90%;
+        }
+        .image-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            z-index: 1000;
+        }
+        .image-nav.prev {
+            left: 20px;
+        }
+        .image-nav.next {
+            right: 20px;
+        }
+        .image-nav:hover {
+            background: rgba(0,0,0,0.9);
+        }
+    </style>
+</head>
+<body class="bg-light">
+<!-- Header -->
+<header class="p-3 text-bg-dark">
+    <div class="container">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+                <i class="fas fa-heartbeat fa-2x me-2"></i>
+                <span class="fs-4">Медицинский проект</span>
+            </a>
+            <ul class="nav col-12 col-lg-auto mb-2 justify-content-center mb-md-0">
+                <li><a th:href="@{/main/index}" class="nav-link px-2 text-secondary">Главная</a></li>
+                <li><a th:href="@{/doctorPage/appointments}" class="nav-link px-2 text-white">Мои записи</a></li>
+            </ul>
+        </div>
+    </div>
+</header>
+
+<main class="container my-5">
+    <!-- Заголовок страницы -->
+    <div class="doctor-header p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h1 class="display-5 fw-bold mb-2">
+                    <i class="fas fa-file-medical-alt me-3"></i>Завершенный анализ пациента
+                </h1>
+                <p class="lead mb-0">Просмотр результатов анализа снимков и завершение лечения</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <span class="badge bg-light text-success status-badge">
+                    <i class="fas fa-check-circle me-1"></i>АНАЛИЗ ЗАВЕРШЕН
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Информация о пациенте -->
+    <div class="card patient-info-card mb-4">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h5 class="card-title" th:text="${form.medicalCard.user.firstName + ' ' + form.medicalCard.user.lastName}"></h5>
+                    <p class="card-text mb-1">
+                        <i class="fas fa-phone me-2"></i>
+                        <span th:text="${form.medicalCard.user.phone}"></span>
+                    </p>
+                    <p class="card-text mb-1">
+                        <i class="fas fa-envelope me-2"></i>
+                        <span th:text="${form.medicalCard.user.email}"></span>
+                    </p>
+                    <p class="card-text" th:if="${form.medicalCard.user.dateOfBirth != null}">
+                        <i class="fas fa-birthday-cake me-2"></i>
+                        <span th:text="${#dates.format(form.medicalCard.user.dateOfBirth, 'dd.MM.yyyy')}"></span>
+                    </p>
+                </div>
+                <div class="col-md-6 text-end">
+                    <p class="card-text" th:if="${form.medicalCard.bloodType != null}">
+                        <strong>Группа крови:</strong>
+                        <span th:text="${form.medicalCard.bloodType}"></span>
+                    </p>
+                    <p class="card-text">
+                        <strong>Дата осмотра:</strong>
+                        <span th:text="${#temporals.format(form.medicalRecord.recordDate, 'dd.MM.yyyy HH:mm')}"></span>
+                    </p>
+                    <!-- Кнопка просмотра медицинской карты -->
+                    <a th:href="@{/doctorPage/showMedicalCard/{id}(id=${form.medicalCard.id})}"
+                       class="btn btn-view-medical-card mt-2">
+                        <i class="fas fa-clipboard-medical me-2"></i>Медицинская карта пациента
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form th:action="@{/doctorPage/saveMedicalRecord}" th:method="post" th:object="${form}">
+        <input type="hidden" th:field="*{medicalCard.id}"/>
+        <input type="hidden" th:field="*{medicalCard.user.id}"/>
+        <input type="hidden" th:field="*{medicalCard.user}"/>
+        <input type="hidden" th:field="*{medicalRecord.doctor}"/>
+        <input type="hidden" th:field="*{medicalRecord.status}" value="COMPLETED"/>
+        <input type="hidden" th:field="*{medicalRecord.id}"/>
+        <input type="hidden" th:field="*{medicalRecord.appointment}"/>
+        <input type="hidden" th:field="*{medicalRecord.medicalCard}"/>
+
+        <!-- Раздел 1: Рентгеновские снимки -->
+        <div class="card section-card imaging-section" th:if="${not medicalImages.isEmpty()}">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-x-ray me-2"></i>Рентгеновские снимки</h5>
+            </div>
+            <div class="card-body">
+                <!-- Миниатюры снимков -->
+                <div class="mb-4">
+                    <h6>Доступные снимки:</h6>
+                    <div class="d-flex flex-wrap">
+                        <div th:each="medicalImage, iter : ${medicalImages}">
+                            <img th:src="@{'/imageData/' + ${medicalImage.id}}"
+                                 class="image-thumbnail"
+                                 th:alt="${medicalImage.originalFileName}"
+                                 th:data-index="${iter.index}"
+                                 onclick="showImage(this)">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Основное изображение -->
+                <div class="image-container">
+                    <h6>Просмотр снимка</h6>
+                    <div th:if="${not medicalImages.isEmpty()}">
+                        <img th:src="@{'/imageData/' + ${medicalImages[0].id}}"
+                             id="mainImage"
+                             class="medical-image"
+                             th:alt="${medicalImages[0].originalFileName}"
+                             data-bs-toggle="modal"
+                             data-bs-target="#imageModal">
+                        <div class="mt-2">
+                            <small class="text-muted" id="imageCaption">
+                                <span th:text="${medicalImages[0].originalFileName}"></span>
+                                <span th:if="${medicalImages[0].status != null}">
+                                    • Статус: <span th:text="${medicalImages[0].status.getTranslation()}"></span>
+                                </span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Обработанные изображения (если есть) -->
+                <div th:each="medicalImage : ${medicalImages}" th:if="${medicalImage.processedFilePath != null}">
+                    <div class="image-container mt-3">
+                        <h6>Обработанный снимок</h6>
+                        <img th:src="@{'/imageData/processedImage/' + ${medicalImage.id}}"
+                             class="medical-image"
+                             th:alt="'Обработанный ' + ${medicalImage.originalFileName}"
+                             data-bs-toggle="modal"
+                             data-bs-target="#imageModal">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Раздел 2: Результаты радиолога -->
+        <div class="card section-card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-user-md me-2"></i>Заключение радиолога</h5>
+            </div>
+            <div class="card-body">
+                <div class="analysis-results">
+                    <h6><i class="fas fa-file-medical me-2"></i>Результаты анализа снимков</h6>
+                    <p th:if="${form.medicalRecord.imagingResults != null && !form.medicalRecord.imagingResults.isEmpty()}"
+                       class="mb-0" th:text="${form.medicalRecord.imagingResults}">
+                    </p>
+                    <p th:if="${form.medicalRecord.imagingResults == null || form.medicalRecord.imagingResults.isEmpty()}"
+                       class="text-muted mb-0">
+                        <i class="fas fa-info-circle me-1"></i>Результаты анализа не заполнены
+                    </p>
+                </div>
+
+                <!-- Клинический вопрос (если был) -->
+                <div th:if="${form.medicalRecord.clinicalQuestion != null && !form.medicalRecord.clinicalQuestion.isEmpty()}"
+                     class="mt-3">
+                    <h6><i class="fas fa-question-circle me-2"></i>Клинический вопрос</h6>
+                    <p class="mb-0" th:text="${form.medicalRecord.clinicalQuestion}"></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Раздел 3: Исходные данные осмотра -->
+        <div class="card section-card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-clipboard-list me-2"></i>Данные осмотра</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- Симптомы -->
+                    <div class="col-12">
+                        <label class="form-label">Жалобы и симптомы</label>
+                        <textarea th:field="*{medicalRecord.symptoms}" class="form-control"
+                                  rows="3" placeholder="Опишите жалобы пациента..." readonly></textarea>
+                    </div>
+
+                    <!-- Данные осмотра -->
+                    <div class="col-12">
+                        <label class="form-label">Данные осмотра</label>
+                        <textarea th:field="*{medicalRecord.examinationNotes}" class="form-control"
+                                  rows="3" placeholder="Результаты осмотра..." readonly></textarea>
+                    </div>
+
+                    <!-- Предварительный диагноз -->
+                    <div class="col-12">
+                        <label class="form-label">Предварительный диагноз</label>
+                        <input th:field="*{medicalRecord.preliminaryDiagnosis}" type="text"
+                               class="form-control" placeholder="Предварительный диагноз..." readonly>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Раздел 4: Завершение лечения -->
+        <div class="card section-card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0"><i class="fas fa-flag-checkered me-2"></i>Завершение лечения</h5>
+            </div>
+            <div class="card-body">
+                <!-- Уведомление о завершении -->
+                <div class="completion-notice">
+                    <h6 class="mb-2"><i class="fas fa-check-circle me-2"></i>Завершение обследования</h6>
+                    <p class="mb-0 small">
+                        После сохранения запись будет закрыта и помечена как завершённая.
+                        Убедитесь, что все данные заполнены корректно.
+                    </p>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Окончательный диагноз -->
+                    <div class="col-12">
+                        <label class="form-label">Окончательный диагноз *</label>
+                        <input th:field="*{medicalRecord.finalDiagnosis}" type="text"
+                               class="form-control" placeholder="Окончательный диагноз..." required>
+                    </div>
+
+                    <!-- План лечения -->
+                    <div class="col-12">
+                        <label class="form-label">План лечения и рекомендации</label>
+                        <textarea th:field="*{medicalRecord.treatmentPlan}" class="form-control"
+                                  rows="3" placeholder="Опишите план лечения пациента..."></textarea>
+                    </div>
+
+                    <!-- Назначенные лекарства -->
+                    <div class="col-12">
+                        <label class="form-label">Назначенные лекарства</label>
+                        <textarea th:field="*{medicalRecord.prescribedMedication}" class="form-control"
+                                  rows="2" placeholder="Укажите назначенные лекарства и дозировку..."></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Кнопки действий -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="d-flex gap-3 justify-content-end">
+                    <a th:href="@{/doctorPage/appointments}" class="btn btn-secondary btn-lg">
+                        <i class="fas fa-arrow-left me-2"></i>Назад к записям
+                    </a>
+                    <button type="submit" class="btn btn-save-record btn-lg">
+                        <i class="fas fa-save me-2"></i>Сохранить и завершить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<!-- Модальное окно для просмотра изображений -->
+<div class="modal fade image-modal" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalImageTitle">Просмотр снимка</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center position-relative">
+                <button class="image-nav prev" onclick="navigateImage(-1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <img id="modalImage" src="" class="img-fluid" style="max-height: 70vh;">
+                <button class="image-nav next" onclick="navigateImage(1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+            <div class="modal-footer">
+                <small class="text-muted" id="modalImageInfo"></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5><i class="fas fa-heartbeat me-2"></i>Медицинский проект</h5>
+                <p class="mb-0">Ваше здоровье - наша забота</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">© 2025 Медицинский проект. Все права защищены.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let currentImageIndex = 0;
+    const medicalImages = [];
+
+    // Инициализация массива изображений
+    document.addEventListener('DOMContentLoaded', function() {
+        const thumbnails = document.querySelectorAll('.image-thumbnail');
+        thumbnails.forEach(thumb => {
+            medicalImages.push({
+                src: thumb.src,
+                alt: thumb.alt,
+                index: parseInt(thumb.dataset.index)
+            });
+        });
+    });
+
+    // Показ изображения в основном контейнере
+    function showImage(element) {
+        const mainImage = document.getElementById('mainImage');
+        const imageCaption = document.getElementById('imageCaption');
+
+        mainImage.src = element.src;
+        mainImage.alt = element.alt;
+
+        // Обновляем подпись
+        const imageIndex = parseInt(element.dataset.index);
+        const imageData = medicalImages[imageIndex];
+        imageCaption.innerHTML = `
+            ${imageData.alt}
+            <span th:if="${medicalImages[imageIndex]?.status != null}">
+                • Статус: <span th:text="${medicalImages[imageIndex]?.status?.getTranslation()}"></span>
+            </span>
+        `;
+
+        // Обновляем активную миниатюру
+        document.querySelectorAll('.image-thumbnail').forEach(thumb => {
+            thumb.classList.remove('active');
+        });
+        element.classList.add('active');
+
+        currentImageIndex = imageIndex;
+    }
+
+    // Навигация по изображениям в модальном окне
+    function navigateImage(direction) {
+        currentImageIndex += direction;
+
+        if (currentImageIndex < 0) {
+            currentImageIndex = medicalImages.length - 1;
+        } else if (currentImageIndex >= medicalImages.length) {
+            currentImageIndex = 0;
+        }
+
+        const imageData = medicalImages[currentImageIndex];
+        document.getElementById('modalImage').src = imageData.src;
+        document.getElementById('modalImageTitle').textContent = 'Просмотр снимка';
+        document.getElementById('modalImageInfo').textContent = imageData.alt;
+    }
+
+    // Обработка модального окна
+    document.getElementById('imageModal').addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const imageSrc = button.src;
+        const imageAlt = button.alt;
+
+        document.getElementById('modalImage').src = imageSrc;
+        document.getElementById('modalImageTitle').textContent = 'Просмотр снимка';
+        document.getElementById('modalImageInfo').textContent = imageAlt;
+
+        // Находим индекс текущего изображения
+        currentImageIndex = medicalImages.findIndex(img => img.src === imageSrc);
+    });
+</script>
+</body>
+</html>

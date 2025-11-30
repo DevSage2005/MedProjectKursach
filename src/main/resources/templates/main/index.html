@@ -123,6 +123,25 @@
             margin: 0 auto;
             opacity: 0.95;
         }
+
+        .medical-card-link {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
+            color: white;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-left: 0.5rem;
+        }
+
+        .medical-card-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+            color: white;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -139,12 +158,39 @@
                 <li><a href="#" class="nav-link px-2 text-white">Главная</a></li>
                 <li><a th:href="@{/user/appointments}" class="nav-link px-2 text-secondary">Мои записи</a></li>
                 <li><a th:href="@{/user/searchDoctors}" class="nav-link px-2 text-secondary">Найти врача</a></li>
-                <li sec:authorize="hasRole('ADMIN')"><a th:href="@{/adminPage}" class="nav-link px-2 text-secondary">Панель администратора</a></li>
-                <li sec:authorize="hasRole('DOCTOR')"><a th:href="@{/doctorPage/appointments}" class="nav-link px-2 text-secondary">Записи</a></li>
-                <li sec:authorize="hasRole('RADIOLOGIST')"><a th:href="@{/radiologistPage/analysis}" class="nav-link px-2 text-secondary">Анализы</a></li>
+
+                <!-- Медицинская карта для пользователя -->
+                <li sec:authorize="hasRole('USER')">
+                    <a th:href="@{/user/medicalCard}" class="nav-link px-2 text-secondary">
+                        <i class="fas fa-clipboard-medical me-1"></i>Моя медкарта
+                    </a>
+                </li>
+
+                <!-- Для администратора -->
+                <li sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/adminPage}" class="nav-link px-2 text-secondary">Панель администратора</a>
+                </li>
+
+                <!-- Для врача -->
+                <li sec:authorize="hasRole('DOCTOR')">
+                    <a th:href="@{/doctorPage/appointments}" class="nav-link px-2 text-secondary">Записи</a>
+                </li>
+
+                <!-- Для радиолога -->
+                <li sec:authorize="hasRole('RADIOLOGIST')">
+                    <a th:href="@{/radiologistPage/analysis}" class="nav-link px-2 text-secondary">Анализы</a>
+                </li>
             </ul>
             <div class="text-end">
                 <span class="text-white me-3" sec:authentication="name"></span>
+
+                <!-- Кнопка медицинской карты для администратора -->
+                <span sec:authorize="hasRole('ADMIN')">
+                    <a th:href="@{/admin/medicalCards}" class="medical-card-link">
+                        <i class="fas fa-clipboard-list me-1"></i>Медкарты
+                    </a>
+                </span>
+
                 <form th:method="POST" th:action="@{/logout}" class="d-inline">
                     <button type="submit" class="btn btn-warning">
                         <i class="fas fa-sign-out-alt"></i> Выйти

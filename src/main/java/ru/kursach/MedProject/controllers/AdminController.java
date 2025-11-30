@@ -126,7 +126,7 @@ public class AdminController {
         List<User> doctors;
         if (spec != null && !spec.equals("all") && !spec.isEmpty()) {
             try {
-                Specialization specialization = Specialization.valueOf(spec);
+                Specialization specialization = Specialization.valueOf(spec.toUpperCase());
                 doctors = userRepository.findUserByRoleAndSpecialization(Roles.ROLE_DOCTOR, specialization);
                 model.addAttribute("selectedSpecialization", specialization);
             } catch (IllegalArgumentException e) {

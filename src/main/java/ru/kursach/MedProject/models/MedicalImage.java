@@ -1,10 +1,15 @@
 package ru.kursach.MedProject.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.kursach.MedProject.enums.ImageStatus;
 
 import java.time.LocalDateTime;
 
+@Data
+@AllArgsConstructor
 @Entity
 @Table(name = "medical_image")
 public class MedicalImage {
@@ -40,47 +45,16 @@ public class MedicalImage {
     @Column(name = "processed_at")
     private LocalDateTime processedAt;
 
-    // Конструкторы
+    @Column(name = "analysis_results") // Для хранения JSON
+    private String analysisResults;
+
+
     public MedicalImage() {
         this.uploadedAt = LocalDateTime.now();
         this.status = ImageStatus.UPLOADED;
     }
 
-    public MedicalImage(MedicalRecord medicalRecord,
-                        String originalFileName, String filePath, Long fileSize) {
-        this();
-        this.medicalRecord = medicalRecord;
-        this.originalFileName = originalFileName;
-        this.filePath = filePath;
-        this.fileSize = fileSize;
-    }
 
-    // Геттеры и сеттеры
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
 
-    public MedicalRecord getMedicalRecord() { return medicalRecord; }
-    public void setMedicalRecord(MedicalRecord medicalRecord) { this.medicalRecord = medicalRecord; }
-
-    public String getOriginalFileName() { return originalFileName; }
-    public void setOriginalFileName(String originalFileName) { this.originalFileName = originalFileName; }
-
-    public String getFilePath() { return filePath; }
-    public void setFilePath(String filePath) { this.filePath = filePath; }
-
-    public String getProcessedFilePath() { return processedFilePath; }
-    public void setProcessedFilePath(String processedFilePath) { this.processedFilePath = processedFilePath; }
-
-    public Long getFileSize() { return fileSize; }
-    public void setFileSize(Long fileSize) { this.fileSize = fileSize; }
-
-    public ImageStatus getStatus() { return status; }
-    public void setStatus(ImageStatus status) { this.status = status; }
-
-    public LocalDateTime getUploadedAt() { return uploadedAt; }
-    public void setUploadedAt(LocalDateTime uploadedAt) { this.uploadedAt = uploadedAt; }
-
-    public LocalDateTime getProcessedAt() { return processedAt; }
-    public void setProcessedAt(LocalDateTime processedAt) { this.processedAt = processedAt; }
 
 }

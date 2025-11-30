@@ -34,27 +34,19 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
-        .form-section {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-        }
-        .status-section {
-            border-left: 4px solid #6f42c1;
-        }
-        .completion-toggle {
-            background: linear-gradient(45deg, #28a745, #20c997);
+        .btn-view-medical-card {
+            background: linear-gradient(45deg, #6f42c1, #e83e8c);
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            font-weight: 600;
             color: white;
-            border-radius: 10px;
-            padding: 1rem;
-            margin-bottom: 1rem;
+            transition: all 0.3s ease;
         }
-        .completion-fields {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 1.5rem;
-            border: 2px dashed #28a745;
+        .btn-view-medical-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(111, 66, 193, 0.3);
+            color: white;
         }
     </style>
 </head>
@@ -91,7 +83,7 @@
     <!-- Информация о пациенте -->
     <div class="card patient-info-card mb-4">
         <div class="card-body">
-            <div class="row">
+            <div class="row align-items-center">
                 <div class="col-md-6">
                     <h5 class="card-title" th:text="${form.medicalCard.user.firstName + ' ' + form.medicalCard.user.lastName}"></h5>
                     <p class="card-text mb-1">
@@ -112,6 +104,11 @@
                         <strong>Группа крови:</strong>
                         <span th:text="${form.medicalCard.bloodType}"></span>
                     </p>
+                    <!-- Кнопка просмотра медицинской карты -->
+                    <a th:href="@{/doctorPage/showMedicalCard/{id}(id=${form.medicalCard.id})}"
+                       class="btn btn-view-medical-card mt-2">
+                        <i class="fas fa-clipboard-medical me-2"></i>Медицинская карта пациента
+                    </a>
                 </div>
             </div>
         </div>
@@ -122,7 +119,7 @@
         <input type="hidden" th:field="*{medicalCard.user.id}"/>
         <input type="hidden" th:field="*{medicalCard.user}"/>
         <input type="hidden" th:field="*{medicalRecord.doctor}"/>
-        <input type="hidden" th:field="*{medicalRecord.status}" id="statusField"/>
+        <input type="hidden" th:field="*{medicalRecord.status}"/>
         <input type="hidden" th:field="*{medicalRecord.id}"/>
         <input type="hidden" th:field="*{medicalRecord.appointment}"/>
         <input type="hidden" th:field="*{medicalRecord.medicalCard}"/>
@@ -292,51 +289,6 @@
             </div>
         </div>
 
-        <!-- Раздел 5: Завершение обследования -->
-        <div class="card section-card status-section">
-            <div class="card-header bg-purple text-white" style="background: linear-gradient(45deg, #6f42c1, #e83e8c);">
-                <h5 class="mb-0"><i class="fas fa-flag-checkered me-2"></i>Завершение обследования</h5>
-            </div>
-            <div class="card-body">
-                <!-- Тумблер завершения -->
-                <div class="completion-toggle">
-                    <div class="form-check form-switch form-switch-lg">
-                        <input class="form-check-input" type="checkbox" role="switch"
-                               id="completionToggle" onchange="toggleCompletionFields()">
-                        <label class="form-check-label h5 mb-0" for="completionToggle">
-                            <i class="fas fa-check-circle me-2"></i>Завершить обследование
-                        </label>
-                    </div>
-                    <p class="mb-0 mt-2 small">
-                        <i class="fas fa-info-circle me-1"></i>
-                        Если включить этот переключатель, запись будет помечена как завершённая
-                    </p>
-                </div>
-
-                <!-- Дополнительные поля для завершённой записи -->
-                <div id="completionFields" class="completion-fields" style="display: none;">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <div class="alert alert-success">
-                                <i class="fas fa-check me-2"></i>
-                                <strong>Обследование будет завершено</strong>
-                                <p class="mb-0 mt-1">Запись пациента будет закрыта и помечена как завершённая.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Статус при незавершённом обследовании -->
-                <div id="inProgressStatus" class="mt-3">
-                    <div class="alert alert-info">
-                        <i class="fas fa-sync-alt me-2"></i>
-                        <strong>Обследование продолжается</strong>
-                        <p class="mb-0 mt-1">Запись останется открытой для дальнейшего заполнения.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Кнопки действий -->
         <div class="row mt-4">
             <div class="col-12">
@@ -344,7 +296,7 @@
                     <a th:href="@{/doctorPage/appointments}" class="btn btn-secondary btn-lg">
                         <i class="fas fa-times me-2"></i>Отмена
                     </a>
-                    <button type="submit" class="btn btn-save-record btn-lg" onclick="setStatusBeforeSubmit()">
+                    <button type="submit" class="btn btn-save-record btn-lg">
                         <i class="fas fa-save me-2"></i>Сохранить запись
                     </button>
                 </div>
@@ -382,41 +334,9 @@
         }
     }
 
-    // Показ/скрытие полей завершения
-    function toggleCompletionFields() {
-        const completionToggle = document.getElementById('completionToggle').checked;
-        const completionFields = document.getElementById('completionFields');
-        const inProgressStatus = document.getElementById('inProgressStatus');
-
-        if (completionToggle) {
-            completionFields.style.display = 'block';
-            inProgressStatus.style.display = 'none';
-        } else {
-            completionFields.style.display = 'none';
-            inProgressStatus.style.display = 'block';
-        }
-    }
-
-    // Установка статуса перед отправкой формы
-    function setStatusBeforeSubmit() {
-        const completionToggle = document.getElementById('completionToggle').checked;
-        const imagingRequired = document.getElementById('imagingRequired').checked;
-        const statusField = document.getElementById('statusField');
-
-        if (completionToggle) {
-            statusField.value = 'COMPLETED';
-        } else if (imagingRequired) {
-            // Статус будет установлен сервером как IMAGING_REQUESTED
-            statusField.value = 'IN_PROGRESS'; // Временное значение
-        } else {
-            statusField.value = 'IN_PROGRESS';
-        }
-    }
-
     // Инициализация при загрузке страницы
     document.addEventListener('DOMContentLoaded', function() {
         toggleImagingFields();
-        toggleCompletionFields();
     });
 </script>
 </body>

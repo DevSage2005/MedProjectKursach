@@ -1,7 +1,7 @@
 package ru.kursach.MedProject.enums;
 
 public enum ImageStatus {
-    UPLOADED("Загружено"), PROCESSED("В обработке"), ANALYZED("Проанализировать");
+    UPLOADED("Загружено"), PROCESSED("В обработке"), ANALYZED("Проанализировать"), PROCESSED_AND_ANALYZED("Обработано и проанализировано");
 
     String translation;
     ImageStatus(String translation) {

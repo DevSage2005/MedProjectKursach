@@ -16,11 +16,10 @@ import ru.kursach.MedProject.models.User;
 import ru.kursach.MedProject.repositories.MedicalImageRepository;
 import ru.kursach.MedProject.repositories.MedicalRecordRepository;
 import ru.kursach.MedProject.services.MedicalImageService;
+import ru.kursach.MedProject.util.MedicalImageProcess;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -69,17 +68,41 @@ public class RadiologistController {
         return "redirect:/radiologistPage/image/" + medicalImage.getId();
     }
 
-    @GetMapping("/image/{id}")
-    public String analisPage(@PathVariable("id") long id, Model model){
-        MedicalImage medicalImage = medicalImageRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Image not found"));
+    @GetMapping("/image/{imageId}")
+    public String viewImage(@PathVariable Long imageId, Model model) {
+        MedicalImage medicalImage = medicalImageRepository.findById(imageId).orElseThrow();
+        MedicalRecord medicalRecord = medicalImage.getMedicalRecord();
 
         model.addAttribute("medicalImage", medicalImage);
-        model.addAttribute("medicalRecord", medicalImage.getMedicalRecord());
+        model.addAttribute("medicalRecord", medicalRecord);
 
+        // Всегда проверяем и добавляем результаты анализа
+        if (medicalImageService.hasAnalysisResults(imageId)) {
+            MedicalImageProcess.MedicalAnalysis analysis = medicalImageService.getAnalysisResults(imageId);
+            model.addAttribute("analysisResults", analysis);
+            model.addAttribute("analysisSummary", medicalImageService.getAnalysisSummaryObject(imageId));
+
+            // Добавляем время анализа (если нужно)
+            model.addAttribute("analysisPerformedAt", medicalImage.getProcessedAt());
+        } else {
+            // Если анализа нет, добавляем пустые объекты чтобы не было ошибок в шаблоне
+            model.addAttribute("analysisResults", null);
+            model.addAttribute("analysisSummary", null);
+        }
         return "radiologist/imageProcessing";
-
     }
+
+
+    @PostMapping("/saveAnalizResult/{id}")
+    public String saveResult(@ModelAttribute("medicalRecord") MedicalRecord medicalRecord){
+        MedicalRecord existingRecord = medicalRecordRepository.findById(medicalRecord.getId())
+                .orElseThrow(() -> new RuntimeException("Medical record not found"));
+        existingRecord.setImagingResults(medicalRecord.getImagingResults());
+        existingRecord.setStatus(MedicalRecordStatus.IMAGING_COMPLETED);
+        medicalRecordRepository.save(existingRecord);
+        return "redirect:/radiologistPage/analysis";
+    }
+
 
 
 

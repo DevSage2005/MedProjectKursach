@@ -1,6 +1,10 @@
 package ru.kursach.MedProject.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -11,9 +15,7 @@ import ru.kursach.MedProject.enums.BookStatus;
 import ru.kursach.MedProject.enums.Roles;
 import ru.kursach.MedProject.enums.Specialization;
 import ru.kursach.MedProject.models.*;
-import ru.kursach.MedProject.repositories.AppointmentRepository;
-import ru.kursach.MedProject.repositories.ScheduleRepository;
-import ru.kursach.MedProject.repositories.UserRepository;
+import ru.kursach.MedProject.repositories.*;
 import ru.kursach.MedProject.services.UserService;
 
 import java.text.ParseException;
@@ -29,15 +31,19 @@ public class UserController {
     private final ScheduleRepository scheduleRepository;
     private final UserService userService;
     private final AppointmentRepository appointmentRepository;
+    private final MedicalCardRepository medicalCardRepository;
+    private final MedicalRecordRepository medicalRecordRepository;
 
 
 
     @Autowired
-    public UserController(UserRepository userRepository, ScheduleRepository scheduleRepository, UserService userService, AppointmentRepository appointmentRepository) {
+    public UserController(UserRepository userRepository, ScheduleRepository scheduleRepository, UserService userService, AppointmentRepository appointmentRepository, MedicalCardRepository medicalCardRepository, MedicalRecordRepository medicalRecordRepository) {
         this.userRepository = userRepository;
         this.scheduleRepository = scheduleRepository;
         this.userService = userService;
         this.appointmentRepository=appointmentRepository;
+        this.medicalCardRepository = medicalCardRepository;
+        this.medicalRecordRepository = medicalRecordRepository;
     }
 
     @GetMapping("/searchDoctors")
@@ -45,7 +51,7 @@ public class UserController {
         List<User> doctors;
         if(spec != null && !spec.equals("all") && !spec.isEmpty()) {
             try {
-                Specialization specialization = Specialization.valueOf(spec);
+                Specialization specialization = Specialization.valueOf(spec.toUpperCase());
                 doctors = userRepository.findUserByRoleAndSpecialization(Roles.ROLE_DOCTOR, specialization);
                 model.addAttribute("selectedSpecialization", specialization);
             } catch (IllegalArgumentException e) {
@@ -56,6 +62,28 @@ public class UserController {
         }
         model.addAttribute("doctors", doctors);
         return "user/searchDoctor";
+    }
+
+    @GetMapping("/medicalCard")
+    public String getMedCard(@RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "5") int size,
+                               Model model){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        PesonDetails pesonDetails = (PesonDetails) authentication.getPrincipal();
+        User user = pesonDetails.getUser();
+
+        MedicalCard medicalCard = medicalCardRepository.findByUser(user);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("completionDate").descending());
+        Page<MedicalRecord> medicalRecordsPage = medicalRecordRepository
+                .findByMedicalCardOrderByCompletionDateDesc(medicalCard, pageable);
+
+        model.addAttribute("medicalCard", medicalCard);
+        model.addAttribute("medicalRecords", medicalRecordsPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", medicalRecordsPage.getTotalPages());
+        model.addAttribute("totalRecords", medicalRecordsPage.getTotalElements());
+        model.addAttribute("pageSize", size);
+        return "doctor/patientMedCard";
     }
 
     @GetMapping("/bookDoctor/{doctor_id}")
@@ -139,10 +167,4 @@ public class UserController {
         }
         return "redirect:/user/appointments";
     }
-
-
-
-
-
-
 }

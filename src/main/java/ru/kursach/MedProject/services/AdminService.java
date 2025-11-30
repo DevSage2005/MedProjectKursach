@@ -39,7 +39,7 @@ public class AdminService {
 
     public void setRoleForUser(int id, String role){
         User user = userService.getUserById(id);
-        Roles newRole = Roles.valueOf(role);
+        Roles newRole = Roles.valueOf(role.toUpperCase());
         user.setRole(newRole);
         userRepository.save(user);
     }
